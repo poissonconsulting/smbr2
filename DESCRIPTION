@@ -1,14 +1,49 @@
 Package: smbr2
-Title: What the Package Does (One Line, Title Case)
+Title: Facilitates Bayesian Analysis using STAN with CmdStanR
 Version: 0.0.0.9000
 Authors@R: 
     person("Seb", "Dalgarno", , "seb@poissonconsulting.ca", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3658-4517"))
-Description: What the package does (one paragraph).
+Description: Facilitates Bayesian Analysis using STAN with CmdStanR. This builds on smbr, which uses rstan. 
 License: MIT + file LICENSE
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2.9000
+URL: https://github.com/poissonconsulting/smbr2
+BugReports: https://github.com/poissonconsulting/smbr2/issues
+Depends: 
+    R (>= 4.1)
+Imports: 
+    broom,
+    chk,
+    coda,
+    embr (>= 0.0.1.9036),
+    lubridate,
+    magrittr,
+    mcmcr,
+    nlist,
+    plyr,
+    purrr,
+    rlang,
+    rstan,
+    stringr,
+    term,
+    tibble,
+    timer,
+    utils
 Suggests: 
-    testthat (>= 3.0.0)
+    bauw,
+    BH,
+    covr,
+    ggplot2,
+    mcmcdata,
+    RcppEigen,
+    testthat,
+    universals
+Remotes: 
+    poissonconsulting/bauw,
+    poissonconsulting/embr,
+    poissonconsulting/mcmcdata,
+    poissonconsulting/timer
+Encoding: UTF-8
+RoxygenNote: 7.3.2.9000
+Roxygen: list(markdown = TRUE)
+Config/Needs/website: poissonconsulting/poissontemplate
 Config/testthat/edition: 3
