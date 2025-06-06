@@ -13,6 +13,7 @@ Depends:
 Imports: 
     broom,
     chk,
+    cmdstanr,
     coda,
     embr (>= 0.0.1.9036),
     lubridate,
@@ -22,7 +23,6 @@ Imports:
     plyr,
     purrr,
     rlang,
-    rstan,
     stringr,
     term,
     tibble,
@@ -41,7 +41,8 @@ Remotes:
     poissonconsulting/bauw,
     poissonconsulting/embr,
     poissonconsulting/mcmcdata,
-    poissonconsulting/timer
+    poissonconsulting/timer,
+    stan-dev/cmdstanr
 Encoding: UTF-8
 RoxygenNote: 7.3.2.9000
 Roxygen: list(markdown = TRUE)
