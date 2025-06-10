@@ -1,5 +1,5 @@
 #' @export
-load_model.smb_model <- function(x, quiet, ...) {
+load_model.smb2_model <- function(x, quiet, ...) {
   chk_flag(quiet)
 
   capture_output <- if (quiet) {
@@ -7,15 +7,11 @@ load_model.smb_model <- function(x, quiet, ...) {
   } else {
     eval
   }
-
-
+  
   capture_output(
-    stanc <- rstan::stanc(model_code = template(x))
+    stan_model <- cmdstanr::cmdstan_model(stan_file = cmdstanr::write_stan_file(template(x)), 
+                                          quiet = quiet)
   )
-  capture_output(
-    stan_model <- rstan::stan_model(
-      stanc_ret = stanc, save_dso = FALSE, auto_write = FALSE
-    )
-  )
+
   stan_model
 }
