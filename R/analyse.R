@@ -21,7 +21,7 @@ smb_analyse_chain <- function(inits_chainid, loaded, data,
 
 
 #' @export
-analyse1.smb_model <- function(model, data, loaded, nchains, niters, nthin,
+analyse1.smb2_model <- function(model, data, loaded, nchains, niters, nthin,
                                quiet, glance, parallel, ...) {
   timer <- timer::Timer$new()
   timer$start()
