@@ -1,4 +1,4 @@
-#' @method as.mcmc.list stanfit
+#' @method as.mcmc.list draws_array
 #' @export
 as.mcmc.list.draws_array <- function(x, ...) as.mcmc.list(as.mcmcr(x))
 
