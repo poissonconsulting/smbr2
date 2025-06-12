@@ -1,5 +1,5 @@
 #' @export
-load_model.smb2_model <- function(x, quiet, ...) {
+load_model.cmdstan_model <- function(x, quiet, ...) {
   chk_flag(quiet)
   
   capture_output <- if (quiet) function(x){
