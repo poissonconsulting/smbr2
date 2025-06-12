@@ -1,5 +1,5 @@
 #' @export
-analyse1.smb2_model <- function(model, data, loaded, nchains, niters, nthin, 
+analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nthin, 
                                quiet, glance, parallel, ...) {
   timer <- timer::Timer$new()
   timer$start()
@@ -50,7 +50,7 @@ analyse1.smb2_model <- function(model, data, loaded, nchains, niters, nthin,
   )
 
   obj$duration <- timer$elapsed()
-  class(obj) <- c("smb2_analysis", "smb_analysis", "mb_analysis")
+  class(obj) <- c("cmdstan_mcmc_analysis", "cmdstan_analysis", "mb_analysis")
 
   if (glance) print(glance(obj))
 
