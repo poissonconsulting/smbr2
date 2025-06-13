@@ -1,6 +1,37 @@
+#' Analyse CmdStanR MCMC Model
+#'
+#' Internal method for analysing models using CmdStanR's MCMC sampling.
+#' This method is dispatched when \code{stan_engine = "cmdstan-mcmc"} in 
+#' \code{\link{analyse.mb_model}}.
+#'
+#' @param model A mb_model to analyse.
+#' @param data A data.frame of the data.
+#' @param loaded A loaded CmdStanR model object.
+#' @param nchains A umber of the MCMC chains.
+#' @param niters A number of iterations to save per chain (post-warmup, post-thinning).
+#' @param nthin A number of the thinning interval.
+#' @param quiet A flag indicating whether to suppress messages and warnings.
+#' @param glance A flag indicating whether to print model summary.
+#' @param parallel A flag indicating whether to run chains in parallel.
+#' @param iter_warmup A number of the warmup iterations (defaults to niters).
+#' @param ... Additional arguments passed to \code{\link[cmdstanr]{sample}}.
+#'   Common options include:
+#'   \itemize{
+#'     \item \code{adapt_delta} - Target acceptance rate (0 < adapt_delta < 1)
+#'     \item \code{max_treedepth} - Maximum tree depth for NUTS sampler
+#'     \item \code{step_size} - Initial step size for sampler
+#'     \item \code{refresh} - How often to print sampling progress
+#'   }
+#'
+#' @return A cmdstan_mcmc_analysis object.
+#' @keywords internal
 #' @export
 analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nthin, 
-                               quiet, glance, parallel, ...) {
+                               quiet, glance, parallel, 
+                               iter_sampling = niters * nthin,
+                               iter_warmup = niters, 
+                               # seed = sample.int(.Machine$integer.max, 1),
+                               ...) {
   timer <- timer::Timer$new()
   timer$start()
 
@@ -16,8 +47,7 @@ analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nt
   
   # warmup iterations are set to equal the number of post-thinning, post-warmup iterations
   sampling_iter <- niters * nthin
-  warmup_iter <- niters
-  seed <- sample.int(.Machine$integer.max, 1)
+  # warmup_iter <- niters
   
   capture_output <- if (quiet) function(x){
    suppressMessages(suppressWarnings(capture.output(x))) 
@@ -29,15 +59,15 @@ analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nt
       data = data,
       chains = nchains,
       parallel_chains = parallel_chains,
-      iter_warmup = warmup_iter,
+      iter_warmup = iter_warmup,
       # this is post-warmup iterations in cmdstanr
       iter_sampling = sampling_iter,
       thin = nthin,
       seed = seed,
-      refresh = 100,
       init = inits,
       show_messages = !quiet,
-      show_exceptions = !quiet
+      show_exceptions = !quiet,
+      ...
     )
   )
   
