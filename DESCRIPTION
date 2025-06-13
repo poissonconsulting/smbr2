@@ -23,6 +23,7 @@ Imports:
     plyr,
     purrr,
     rlang,
+    smbr,
     stringr,
     term,
     tibble,
