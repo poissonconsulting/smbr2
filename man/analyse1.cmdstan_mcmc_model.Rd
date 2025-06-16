@@ -26,28 +26,21 @@
 
 \item{loaded}{A loaded CmdStanR model object.}
 
-\item{nchains}{A umber of the MCMC chains.}
+\item{nchains}{A count of the number of chains (default: 3).}
 
-\item{niters}{A number of iterations to save per chain (post-warmup, post-thinning).}
+\item{niters}{A count of the number of simulations to save per chain (default: 1000).}
 
-\item{nthin}{A number of the thinning interval.}
+\item{nthin}{A count of the thinning interval.}
 
-\item{quiet}{A flag indicating whether to suppress messages and warnings.}
+\item{quiet}{A flag indicating whether to disable tracing information.}
 
-\item{glance}{A flag indicating whether to print model summary.}
+\item{glance}{A flag indicating whether to print a model summary.}
 
-\item{parallel}{A flag indicating whether to run chains in parallel.}
+\item{parallel}{A flag indicating whether to perform the analysis in parallel if possible.}
 
 \item{iter_warmup}{A number of the warmup iterations (defaults to niters).}
 
-\item{...}{Additional arguments passed to \code{\link[cmdstanr]{sample}}.
-Common options include:
-\itemize{
-\item \code{adapt_delta} - Target acceptance rate (0 < adapt_delta < 1)
-\item \code{max_treedepth} - Maximum tree depth for NUTS sampler
-\item \code{step_size} - Initial step size for sampler
-\item \code{refresh} - How often to print sampling progress
-}}
+\item{...}{Additional arguments passed to \code{\link[cmdstanr]{sample}}.}
 }
 \value{
 A cmdstan_mcmc_analysis object.

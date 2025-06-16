@@ -10,14 +10,6 @@
 #' @inheritParams embr::analyse.mb_model
 #' @param iter_warmup A number of the warmup iterations (defaults to niters).
 #' @param ... Additional arguments passed to \code{\link[cmdstanr]{sample}}.
-#'   Common options include:
-#'   \itemize{
-#'     \item \code{adapt_delta} - Target acceptance rate (0 < adapt_delta < 1)
-#'     \item \code{max_treedepth} - Maximum tree depth for NUTS sampler
-#'     \item \code{step_size} - Initial step size for sampler
-#'     \item \code{refresh} - How often to print sampling progress
-#'   }
-#'
 #' @return A cmdstan_mcmc_analysis object.
 #' @keywords internal
 #' @export
