@@ -7,12 +7,7 @@
 #' @param model A mb_model to analyse.
 #' @param data A data.frame of the data.
 #' @param loaded A loaded CmdStanR model object.
-#' @param nchains A umber of the MCMC chains.
-#' @param niters A number of iterations to save per chain (post-warmup, post-thinning).
-#' @param nthin A number of the thinning interval.
-#' @param quiet A flag indicating whether to suppress messages and warnings.
-#' @param glance A flag indicating whether to print model summary.
-#' @param parallel A flag indicating whether to run chains in parallel.
+#' @inheritParams embr::analyse.mb_model
 #' @param iter_warmup A number of the warmup iterations (defaults to niters).
 #' @param ... Additional arguments passed to \code{\link[cmdstanr]{sample}}.
 #'   Common options include:
