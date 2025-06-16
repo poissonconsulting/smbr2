@@ -8,17 +8,25 @@
 #' @param data A data.frame of the data.
 #' @param loaded A loaded CmdStanR model object.
 #' @inheritParams embr::analyse.mb_model
-#' @param iter_warmup A number of the warmup iterations (defaults to niters).
 #' @param ... Additional arguments passed to \code{\link[cmdstanr]{sample}}.
 #' @return A cmdstan_mcmc_analysis object.
 #' @keywords internal
 #' @export
 analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nthin, 
                                quiet, glance, parallel, 
-                               iter_sampling = niters * nthin,
-                               iter_warmup = niters, 
-                               # seed = sample.int(.Machine$integer.max, 1),
+                               seed, niters_warmup,
                                ...) {
+  conflicting_args <- c("iter_sampling", "iter_warmup", "chains", "parallel_chains",
+                        "data", "thin", "init", "show_messages", "show_exceptions")
+  
+  dots <- list(...)
+  conflicts <- intersect(names(dots), conflicting_args)
+  if (length(conflicts) > 0) {
+    dots[conflicts] <- NULL
+    warning("Ignoring arguments passed via '...' that conflict with function parameters: ", 
+            paste(conflicts, collapse = ", "))
+  }
+  
   timer <- timer::Timer$new()
   timer$start()
 
@@ -31,31 +39,26 @@ analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nt
   monitor <- embr::monitor(model)
   
   parallel_chains <- ifelse(parallel, nchains, 1L)
-  
-  # warmup iterations are set to equal the number of post-thinning, post-warmup iterations
-  sampling_iter <- niters * nthin
-  # warmup_iter <- niters
-  
+
   capture_output <- if (quiet) function(x){
    suppressMessages(suppressWarnings(capture.output(x))) 
   }  else {
     identity
   } 
   capture_output(
-    cmdstan_fit <- loaded$sample(
+    cmdstan_fit <- do.call(loaded$sample, c(list(
       data = data,
       chains = nchains,
       parallel_chains = parallel_chains,
-      iter_warmup = iter_warmup,
+      iter_warmup = niters_warmup,
       # this is post-warmup iterations in cmdstanr
-      iter_sampling = sampling_iter,
+      iter_sampling = niters * nthin,
       thin = nthin,
       seed = seed,
       init = inits,
       show_messages = !quiet,
-      show_exceptions = !quiet,
-      ...
-    )
+      show_exceptions = !quiet
+    ), dots))
   )
   
   draws <- cmdstan_fit$draws(variables = monitor, format = "array")
