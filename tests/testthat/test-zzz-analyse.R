@@ -87,10 +87,10 @@ model {
   data <- bauw::peregrine
   data$Annual <- factor(data$Year)
   
-  set.seed(34)
+  seed <- 34
   
   # analyse
-  analysis <- embr::analyse(model, data = data, stan_engine = "cmdstan-mcmc")
+  analysis <- embr::analyse(model, data = data, stan_engine = "cmdstan-mcmc", seed = seed)
   
   expect_identical(class(analysis), c("cmdstan_mcmc_analysis", "cmdstan_analysis", "mb_analysis"))
   expect_true(is.cmdstan_analysis(analysis))

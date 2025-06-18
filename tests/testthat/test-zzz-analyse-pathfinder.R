@@ -64,10 +64,8 @@ model {
   data <- bauw::peregrine
   data$Annual <- factor(data$Year)
   
-  set.seed(34)
-  
-  # analyse with pathfinder
-  analysis <- embr::analyse(model, data = data, stan_engine = "cmdstan-pathfinder", quiet = FALSE)
+  seed <- 34
+  analysis <- embr::analyse(model, data = data, stan_engine = "cmdstan-pathfinder", seed = seed)
   
   expect_identical(class(analysis), c("cmdstan_pathfinder_analysis", "cmdstan_analysis", "mb_analysis"))
   expect_true(is.cmdstan_analysis(analysis))
