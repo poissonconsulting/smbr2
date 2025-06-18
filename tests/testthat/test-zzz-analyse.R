@@ -88,8 +88,6 @@ model {
   data$Annual <- factor(data$Year)
   
   seed <- 34
-  
-  # analyse
   analysis <- embr::analyse(model, data = data, stan_engine = "cmdstan-mcmc", seed = seed)
   
   expect_identical(class(analysis), c("cmdstan_mcmc_analysis", "cmdstan_analysis", "mb_analysis"))
