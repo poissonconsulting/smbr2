@@ -35,7 +35,7 @@ Suggests:
 Remotes: 
     poissonconsulting/bauw,
     poissonconsulting/embr,
-    poissonconsulting/mcmcdata,
+    poissonconsulting/smbr,
     poissonconsulting/timer,
     stan-dev/cmdstanr
 Encoding: UTF-8
