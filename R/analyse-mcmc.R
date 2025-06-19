@@ -17,7 +17,7 @@ analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nt
                                seed, niters_warmup,
                                ...) {
   conflicting_args <- c("iter_sampling", "iter_warmup", "chains", "parallel_chains",
-                        "data", "thin", "init", "show_messages", "show_exceptions")
+                        "data", "thin",  "show_messages", "show_exceptions")
   
   dots <- list(...)
   conflicts <- intersect(names(dots), conflicting_args)
@@ -34,8 +34,13 @@ analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nt
 
   data %<>% modify_data(model = model, numericize_factors = TRUE)
   
-  inits <- inits(data, model$gen_inits, nchains = nchains)
-
+  if("init" %in% names(dots)){
+    init <- dots$init
+    dots$init <- NULL
+  } else {
+    init <- inits(data, model$gen_inits, nchains = nchains)
+  } 
+  
   monitor <- embr::monitor(model)
   
   parallel_chains <- ifelse(parallel, nchains, 1L)
@@ -55,7 +60,7 @@ analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nt
       iter_sampling = niters * nthin,
       thin = nthin,
       seed = seed,
-      init = inits,
+      init = init,
       show_messages = !quiet,
       show_exceptions = !quiet
     ), dots))
