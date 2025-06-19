@@ -1,13 +1,18 @@
 .onLoad <- function(libname, pkgname) {
-  registerS3method("check_model_pars", "smb_code", smbr:::check_model_pars.smb_code,
+  registerS3method("check_model_pars", "smb_code",
+                   getS3method("check_model_pars", "smb_code", envir = asNamespace("smbr")),
                    envir = asNamespace("embr"))
-  registerS3method("comment_string", "smb_code", smbr:::comment_string.smb_code,
+  registerS3method("comment_string", "smb_code", 
+                   getS3method("comment_string", "smb_code", envir = asNamespace("smbr")),
                    envir = asNamespace("embr"))
-  registerS3method("pars", "smb_code", smbr:::pars.smb_code,
+  registerS3method("pars", "smb_code", 
+                   getS3method("pars", "smb_code", envir = asNamespace("smbr")),
                    envir = asNamespace("embr"))
-  registerS3method("pars", "smb_model", smbr:::pars.smb_model,
+  registerS3method("pars", "smb_model", 
+                   getS3method("pars", "smb_model", envir = asNamespace("smbr")),
                    envir = asNamespace("embr"))
-  registerS3method("sd_priors_by", "smb_code", smbr:::sd_priors_by.smb_code,
+  registerS3method("sd_priors_by", "smb_code", 
+                   getS3method("sd_priors_by", "smb_code", envir = asNamespace("smbr")),
                    envir = asNamespace("embr"))
 }
 
