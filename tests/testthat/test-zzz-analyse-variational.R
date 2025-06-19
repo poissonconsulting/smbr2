@@ -66,7 +66,7 @@ model {
   
   seed <- 34
   analysis <- embr::analyse(model, data = data, stan_engine = "cmdstan-variational", 
-                            seed = seed, quiet = FALSE)
+                            seed = seed)
   
   expect_identical(class(analysis), c("cmdstan_variational_analysis", "cmdstan_analysis", "mb_analysis"))
   expect_true(is.cmdstan_analysis(analysis))

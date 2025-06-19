@@ -120,7 +120,7 @@ model {
   monitor <- analysis$cmdstan_fit$summary()
   rhat <- rhat(analysis, by = "term", as_df = TRUE)
   
-  rhat_stan <- tibble::tibble(
+  rhat_stan <- data.frame(
     term = as.term(monitor$variable),
     rhat = round(monitor[, "rhat"], 3)
   )
