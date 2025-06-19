@@ -47,12 +47,21 @@ model {
   data$Annual <- factor(data$Year)
   
   seed <- 34
-  analysis <- embr::analyse(model, data = data, stan_engine = "cmdstan-mcmc", seed = seed)
-  
-  expect_s3_class(analysis, "cmdstan_mcmc_analysis")
-  expect_output(diagnostics <- diagnostics(analysis))
-  expect_s3_class(diagnostics, "cmdstan_mcmc_diagnostics")
+  analysis_mcmc <- embr::analyse(model, data = data, stan_engine = "cmdstan-mcmc", seed = seed)
+  analysis_pathfinder <- embr::analyse(model, data = data, stan_engine = "cmdstan-pathfinder", seed = seed)
+  analysis_variational <- embr::analyse(model, data = data, stan_engine = "cmdstan-variational", seed = seed)
+
+  diagnostics <- diagnose(analysis_mcmc)
+  expect_s3_class(diagnostics, "cmdstan_diagnostics")
   expect_identical(names(diagnostics), c("status", "stdout", "stderr", "timeout"))
 
+  diagnostics <- diagnose(analysis_pathfinder)
+  expect_s3_class(diagnostics, "cmdstan_diagnostics")
+  expect_identical(names(diagnostics), c("status", "stdout", "stderr", "timeout"))
+  
+  diagnostics <- diagnose(analysis_variational)
+  expect_s3_class(diagnostics, "cmdstan_diagnostics")
+  expect_identical(names(diagnostics), c("status", "stdout", "stderr", "timeout"))
+  
 })
 

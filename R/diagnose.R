@@ -18,24 +18,66 @@ diagnose <- function(x, ...) {
 #' Diagnose CmdStan MCMC Analysis
 #'
 #' @description
-#' Provides diagnostic information for CmdStan MCMC analysis objects using
-#' the CmdStan diagnostics. 
+#' Provides diagnostic information for CmdStan MCMC analysis objects. 
 #' 
 #' For more details on diagnostics and how to address issues see: 
 #' * https://mc-stan.org/docs/cmdstan-guide/diagnose.html
 #'
 #' @param x A cmdstan_mcmc_analysis object.
-#' @param ... Additional arguments (currently unused).
+#' @param ... Additional arguments (unused).
 #'
 #' @return Output from CmdStan's diagnostic function.
 #' @export
 diagnose.cmdstan_mcmc_analysis <- function(x, ...) {
   chk_unused(...)
-  chk::chk_s3_class(x, "cmdstan_mcmc_analysis")
   chk::chk_s3_class(x$cmdstan_fit, "CmdStanMCMC")
   
-  y <- x$cmdstan_fit$cmdstan_diagnose()
-  class(y) <- c("cmdstan_mcmc_diagnostics", class(y))
+  x <- capture.output(y <- x$cmdstan_fit$cmdstan_diagnose())
+  class(y) <- c("cmdstan_diagnostics", class(y))
+  y
+}
+
+#' Diagnose CmdStan Variational Analysis
+#'
+#' @description
+#' Provides diagnostic information for CmdStan Variational analysis objects.
+#' 
+#' For more details on diagnostics and how to address issues see: 
+#' * https://mc-stan.org/docs/cmdstan-guide/diagnose.html
+#'
+#' @param x A cmdstan_variational_analysis object.
+#' @param ... Additional arguments (unused).
+#'
+#' @return Output from CmdStan's diagnostic function.
+#' @export
+diagnose.cmdstan_variational_analysis <- function(x, ...) {
+  chk_unused(...)
+  chk::chk_s3_class(x$cmdstan_fit, "CmdStanVB")
+  
+  x <- capture.output(y <- x$cmdstan_fit$cmdstan_diagnose())
+  class(y) <- c("cmdstan_diagnostics", class(y))
+  y
+}
+
+#' Diagnose CmdStan Pathfinder Analysis
+#'
+#' @description
+#' Provides diagnostic information for CmdStan Pathfinder analysis objects.
+#' 
+#' For more details on diagnostics and how to address issues see: 
+#' * https://mc-stan.org/docs/cmdstan-guide/diagnose.html
+#'
+#' @param x A cmdstan_pathfinder_analysis object.
+#' @param ... Additional arguments (unused).
+#'
+#' @return Output from CmdStan's diagnostic function.
+#' @export
+diagnose.cmdstan_pathfinder_analysis <- function(x, ...) {
+  chk_unused(...)
+  chk::chk_s3_class(x$cmdstan_fit, "CmdStanPathfinder")
+  
+  x <- capture.output(y <- x$cmdstan_fit$cmdstan_diagnose())
+  class(y) <- c("cmdstan_diagnostics", class(y))
   y
 }
 
@@ -44,7 +86,7 @@ diagnose.cmdstan_mcmc_analysis <- function(x, ...) {
 #' @param x A cmdstan_mcmc_diagnostics object.
 #' @param ... Additional arguments (currently unused).
 #' @export
-print.cmdstan_mcmc_diagnostics <- function(x, ...) {
+print.cmdstan_diagnostics <- function(x, ...) {
   chk_unused(...)
   cat(x$stdout)
 }

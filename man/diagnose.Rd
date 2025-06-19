@@ -17,7 +17,7 @@ Diagnostic output (format depends on the analysis type).
 \description{
 Generic function for diagnosing analysis objects.
 
-See documentation in specific methods:
+See documentation for specific methods:
 \itemize{
 \item \code{\link[=diagnose.cmdstan_mcmc_analysis]{diagnose.cmdstan_mcmc_analysis()}}
 }
