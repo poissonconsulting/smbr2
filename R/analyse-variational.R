@@ -16,7 +16,6 @@ analyse1.cmdstan_variational_model <- function(model, data, loaded, nchains, nit
                                                quiet, glance, parallel, 
                                                seed, niters_warmup,
                                                ...) {
-  print("hi")
   conflicting_args <- c("data", "show_messages", "show_exceptions", "output_samples", "draws")
   
   dots <- list(...)
@@ -41,8 +40,7 @@ analyse1.cmdstan_variational_model <- function(model, data, loaded, nchains, nit
   } else {
     init <- NULL
   }
-  print("hi")
-  
+
   monitor <- embr::monitor(model)
   
   capture_output <- if (quiet) function(x){
