@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# smbr
+# smbr2
 
 <!-- badges: start -->
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
@@ -23,8 +23,18 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-`smbr` (pronounced simber) is an R package to facilitate analyses using [`STAN`](http://mc-stan.org).
-It is part of the [embr](https://github.com/poissonconsulting/embr) family of packages.
+`smbr2` (pronounced simber two) is an R package to facilitate analyses using [`STAN`](http://mc-stan.org) with [cmdstanr](https://mc-stan.org/cmdstanr/).
+
+`smbr2` was developed as an alternative to [smbr](https://github.com/poissonconsulting/smbr). It uses [cmdstanr](https://mc-stan.org/cmdstanr/) instead of [rstan](https://mc-stan.org/rstan/) as the model-fitting engine. 
+
+The motivation for this is that `cmdstanr` is more up-to-date with latest developments by the Stan dev team (i.e. via [CmdStan](https://mc-stan.org/docs/cmdstan-guide/)). `smbr2` is able to incorporate improved functionality such as the new Stan syntax, faster parallelization, progress communication with parallelization, pedantic Stan model checking, Stan model diagnostics summary, and model fitting with alternative engines such as pathfinder, laplace approximation, varational inference, and optimization. 
+
+Note that some S3 methods for class `smb_model` and `smb_code` are imported from `smbr`. 
+`smbr` and `smbr2` are part of the [embr](https://github.com/poissonconsulting/embr) family of packages.
+To enable `smbr2` functionality in `embr`, modify the `stan_engine` argument in `embr::analyse()`, e.g. `embr::analyse(stan_engine = 'cmdstan-mcmc')`. 
+
+**The new Stan syntax must be used.** `smbr2` will fail with old Stan syntax. If you don't wish to update an old model, simply leave the `stan_engine` argument as the default, which will use `smbr` instead. 
+
 
 ## Demonstration
 
@@ -33,18 +43,18 @@ library(bauw)
 library(ggplot2)
 library(magrittr)
 library(embr)
-library(smbr)
+library(smbr2)
 ```
 
 ```{r}
 # define model in Stan language
-model <- model("
+model <- model(code = "
   data {
       int nAnnual;
       int nObs;
-      int Annual[nObs];
-      int Pairs[nObs];
-      real Year[nObs];
+      array[nObs] int Annual;
+      array[nObs] int Pairs;
+      array[nObs] real Year;
   }
   parameters {
       vector[nAnnual] bAnnual;
@@ -60,21 +70,19 @@ model <- model("
   }
   model {
       vector[nObs] ePairs;
-
       log_sAnnual ~ normal(0, 10);
       bAnnual ~ normal(0, sAnnual);
-
       alpha ~ normal(0, 10);
       beta1 ~ normal(0, 10);
       beta2 ~ normal(0, 10);
       beta3 ~ normal(0, 10);
-
       for (i in 1:nObs) {
         ePairs[i] = exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
                       beta3 * Year[i]^3 + bAnnual[Annual[i]]);
       }
       target += poisson_lpmf(Pairs | ePairs);
-  }")
+  }
+")
 
 # add R code to calculate derived parameters
 model %<>% update_model(new_expr = "
@@ -100,10 +108,15 @@ data$Annual <- factor(data$Year)
 set.seed(42)
 
 # analyse
-analysis <- analyse(model, data = data, seed = 3L, glance = FALSE)
+analysis <- analyse(model, data = data, seed = 3L, glance = FALSE, stan_engine = "cmdstan-mcmc")
+
+# analyse pathfinder
+analysis_path <- analyse(model, data = data, seed = 3L, glance = FALSE, stan_engine = "cmdstan-pathfinder")
 
 # coefficient table
 coef(analysis, simplify = TRUE)
+
+coef(analysis_path, simplify = TRUE)
 
 # trace plots
 plot(analysis)
@@ -111,13 +124,16 @@ plot(analysis)
 ```{r, message = FALSE}
 # make predictions by varying year with other predictors including the random effect of Annual held constant
 year <- predict(analysis, new_data = "Year")
+year_path <- predict(analysis_path, new_data = "Year")
+
+years <- dplyr::bind_rows(list("mcmc" = year, "pathfinder" = year_path), .id = "engine")
 
 # plot those predictions
-ggplot(data = year, aes(x = Year, y = estimate)) +
+ggplot(data = years, aes(x = Year, y = estimate)) +
   geom_point(data = bauw::peregrine, aes(y = Pairs)) +
-  geom_line() +
-  geom_line(aes(y = lower), linetype = "dotted") +
-  geom_line(aes(y = upper), linetype = "dotted") +
+  geom_line(aes(color = engine)) +
+  geom_line(aes(y = lower, color = engine), linetype = "dotted") +
+  geom_line(aes(y = upper, color = engine), linetype = "dotted") +
   expand_limits(y = 0)
 ```
 
@@ -125,20 +141,20 @@ ggplot(data = year, aes(x = Year, y = estimate)) +
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("poissonconsulting/smbr")
+remotes::install_github("poissonconsulting/smbr2")
 ```
 
 ## Citation
 
 ```{r, comment="", echo=FALSE}
-citation(package = "smbr")
+citation(package = "smbr2")
 ```
 
 ## Contribution
 
-Please report any [issues](https://github.com/poissonconsulting/smbr/issues).
+Please report any [issues](https://github.com/poissonconsulting/smbr2/issues).
 
-[Pull requests](https://github.com/poissonconsulting/smbr/pulls) are always welcome.
+[Pull requests](https://github.com/poissonconsulting/smbr2/pulls) are always welcome.
 
 ## Code of Conduct
 

@@ -1,6 +1,7 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# smbr
+# smbr2
 
 <!-- badges: start -->
 
@@ -10,134 +11,168 @@ stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://
 [![Codecov test
 coverage](https://codecov.io/gh/poissonconsulting/smbr/graph/badge.svg)](https://app.codecov.io/gh/poissonconsulting/smbr)
 [![License:
-MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/license/mit/)
 <!-- badges: end -->
 
 ## Introduction
 
-`smbr` (pronounced simber) is an R package to facilitate analyses using
-[`STAN`](http://mc-stan.org). It is part of the
-[embr](https://github.com/poissonconsulting/embr) family of packages.
+`smbr2` (pronounced simber two) is an R package to facilitate analyses
+using [`STAN`](http://mc-stan.org) with
+[cmdstanr](https://mc-stan.org/cmdstanr/).
+
+`smbr2` was developed as an alternative to
+[smbr](https://github.com/poissonconsulting/smbr). It uses
+[cmdstanr](https://mc-stan.org/cmdstanr/) instead of
+[rstan](https://mc-stan.org/rstan/) as the model-fitting engine.
+
+The motivation for this is that `cmdstanr` is more up-to-date with
+latest developments by the Stan dev team (i.e. via
+[CmdStan](https://mc-stan.org/docs/cmdstan-guide/)). `smbr2` is able to
+incorporate improved functionality such as the new Stan syntax, faster
+parallelization, progress communication with parallelization, pedantic
+Stan model checking, Stan model diagnostics summary, and model fitting
+with alternative engines such as pathfinder, laplace approximation,
+varational inference, and optimization.
+
+Note that some S3 methods for class `smb_model` and `smb_code` are
+imported from `smbr`. `smbr` and `smbr2` are part of the
+[embr](https://github.com/poissonconsulting/embr) family of packages. To
+enable `smbr2` functionality in `embr`, modify the `stan_engine`
+argument in `embr::analyse()`,
+e.g. `embr::analyse(stan_engine = 'cmdstan-mcmc')`.
+
+**The new Stan syntax must be used.** `smbr2` will fail with old Stan
+syntax. If you don’t wish to update an old model, simply leave the
+`stan_engine` argument as the default, which will use `smbr` instead.
 
 ## Demonstration
 
-    library(bauw)
-    library(ggplot2)
-    library(magrittr)
-    library(embr)
-    library(smbr)
+``` r
+library(bauw)
+library(ggplot2)
+library(magrittr)
+library(embr)
+library(smbr2)
+```
 
-    # define model in Stan language
-    model <- model("
-      data {
-          int nAnnual;
-          int nObs;
-          int Annual[nObs];
-          int Pairs[nObs];
-          real Year[nObs];
+``` r
+# define model in Stan language
+model <- model(code = "
+  data {
+      int nAnnual;
+      int nObs;
+      array[nObs] int Annual;
+      array[nObs] int Pairs;
+      array[nObs] real Year;
+  }
+  parameters {
+      vector[nAnnual] bAnnual;
+      real log_sAnnual;
+      real alpha;
+      real beta1;
+      real beta2;
+      real beta3;
+  }
+  transformed parameters {
+    real sAnnual;
+    sAnnual = exp(log_sAnnual);
+  }
+  model {
+      vector[nObs] ePairs;
+      log_sAnnual ~ normal(0, 10);
+      bAnnual ~ normal(0, sAnnual);
+      alpha ~ normal(0, 10);
+      beta1 ~ normal(0, 10);
+      beta2 ~ normal(0, 10);
+      beta3 ~ normal(0, 10);
+      for (i in 1:nObs) {
+        ePairs[i] = exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
+                      beta3 * Year[i]^3 + bAnnual[Annual[i]]);
       }
-      parameters {
-          vector[nAnnual] bAnnual;
-          real log_sAnnual;
-          real alpha;
-          real beta1;
-          real beta2;
-          real beta3;
-      }
-      transformed parameters {
-        real sAnnual;
-        sAnnual = exp(log_sAnnual);
-      }
-      model {
-          vector[nObs] ePairs;
+      target += poisson_lpmf(Pairs | ePairs);
+  }
+")
 
-          log_sAnnual ~ normal(0, 10);
-          bAnnual ~ normal(0, sAnnual);
+# add R code to calculate derived parameters
+model %<>% update_model(new_expr = "
+  for (i in 1:length(Pairs)) {
+    prediction[i] <- exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
+                       beta3 * Year[i]^3 + bAnnual[Annual[i]])
+  }
+")
 
-          alpha ~ normal(0, 10);
-          beta1 ~ normal(0, 10);
-          beta2 ~ normal(0, 10);
-          beta3 ~ normal(0, 10);
+# define data types and center year
+model %<>% update_model(
+  select_data = list(
+    "Pairs" = integer(), "Year*" = integer(),
+    Annual = factor()
+  ),
+  derived = "sAnnual",
+  random_effects = list(bAnnual = "Annual")
+)
 
-          for (i in 1:nObs) {
-            ePairs[i] = exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
-                          beta3 * Year[i]^3 + bAnnual[Annual[i]]);
-          }
-          target += poisson_lpmf(Pairs | ePairs);
-      }")
-    #> Warning: The `x` argument of `model()` character() as of embr 0.0.1.9036.
-    #> ℹ Please use the `code` argument instead.
-    #> ℹ Passing a string to model() is deprecated. Use model(code = ...) or model(mb_code("..."), ...) instead.
-    #> This warning is displayed once every 8 hours.
-    #> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
+data <- bauw::peregrine
+data$Annual <- factor(data$Year)
 
-    # add R code to calculate derived parameters
-    model %<>% update_model(new_expr = "
-      for (i in 1:length(Pairs)) {
-        prediction[i] <- exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
-                           beta3 * Year[i]^3 + bAnnual[Annual[i]])
-      }
-    ")
+set.seed(42)
 
-    # define data types and center year
-    model %<>% update_model(
-      select_data = list(
-        "Pairs" = integer(), "Year*" = integer(),
-        Annual = factor()
-      ),
-      derived = "sAnnual",
-      random_effects = list(bAnnual = "Annual")
-    )
+# analyse
+analysis <- analyse(model, data = data, seed = 3L, glance = FALSE, stan_engine = "cmdstan-mcmc")
 
-    data <- bauw::peregrine
-    data$Annual <- factor(data$Year)
+# analyse pathfinder
+analysis_path <- analyse(model, data = data, seed = 3L, glance = FALSE, stan_engine = "cmdstan-pathfinder")
 
-    set.seed(42)
+# coefficient table
+coef(analysis, simplify = TRUE)
+#> # A tibble: 5 × 5
+#>   term        estimate   lower   upper svalue
+#>   <term>         <dbl>   <dbl>   <dbl>  <dbl>
+#> 1 alpha         4.26    4.19    4.34   11.6  
+#> 2 beta1         1.19    1.05    1.35   11.6  
+#> 3 beta2        -0.0183 -0.0765  0.0382  0.901
+#> 4 beta3        -0.274  -0.351  -0.202  11.6  
+#> 5 log_sAnnual  -2.23   -2.92   -1.75   11.6
 
-    # analyse
-    analysis <- analyse(model, data = data, seed = 3L, glance = FALSE)
+coef(analysis_path, simplify = TRUE)
+#> # A tibble: 5 × 5
+#>   term        estimate   lower   upper svalue
+#>   <term>         <dbl>   <dbl>   <dbl>  <dbl>
+#> 1 alpha        4.25     4.21    4.30     9.97
+#> 2 beta1        1.24     1.14    1.28     9.97
+#> 3 beta2       -0.00877 -0.0507  0.0139   1.57
+#> 4 beta3       -0.298   -0.321  -0.255    9.97
+#> 5 log_sAnnual -2.23    -2.60   -2.10     9.97
 
-    # coefficient table
-    coef(analysis, simplify = TRUE)
-    #> # A tibble: 5 × 5
-    #>   term        estimate   lower   upper svalue
-    #>   <term>         <dbl>   <dbl>   <dbl>  <dbl>
-    #> 1 alpha         4.26    4.18    4.34    9.97 
-    #> 2 beta1         1.19    1.07    1.36    9.97 
-    #> 3 beta2        -0.0191 -0.0777  0.0393  0.976
-    #> 4 beta3        -0.272  -0.356  -0.208   9.97 
-    #> 5 log_sAnnual  -2.23   -2.87   -1.70    9.97
+# trace plots
+plot(analysis)
+```
 
-    # trace plots
-    plot(analysis)
-    #> Warning in rep(col, length = nchain(x)): partial argument match of 'length' to 'length.out'
-    #> Warning in rep(col, length = nchain(x)): partial argument match of 'length' to 'length.out'
-    #> Warning in rep(col, length = nchain(x)): partial argument match of 'length' to 'length.out'
+![](tools/README-unnamed-chunk-3-1.png)<!-- -->![](tools/README-unnamed-chunk-3-2.png)<!-- -->
 
-![](tools/README-unnamed-chunk-3-1.png)
+``` r
+# make predictions by varying year with other predictors including the random effect of Annual held constant
+year <- predict(analysis, new_data = "Year")
+year_path <- predict(analysis_path, new_data = "Year")
 
-    #> Warning in rep(col, length = nchain(x)): partial argument match of 'length' to 'length.out'
-    #> Warning in rep(col, length = nchain(x)): partial argument match of 'length' to 'length.out'
+years <- dplyr::bind_rows(list("mcmc" = year, "pathfinder" = year_path), .id = "engine")
 
-![](tools/README-unnamed-chunk-3-2.png)
+# plot those predictions
+ggplot(data = years, aes(x = Year, y = estimate)) +
+  geom_point(data = bauw::peregrine, aes(y = Pairs)) +
+  geom_line(aes(color = engine)) +
+  geom_line(aes(y = lower, color = engine), linetype = "dotted") +
+  geom_line(aes(y = upper, color = engine), linetype = "dotted") +
+  expand_limits(y = 0)
+```
 
-    # make predictions by varying year with other predictors including the random effect of Annual held constant
-    year <- predict(analysis, new_data = "Year")
-
-    # plot those predictions
-    ggplot(data = year, aes(x = Year, y = estimate)) +
-      geom_point(data = bauw::peregrine, aes(y = Pairs)) +
-      geom_line() +
-      geom_line(aes(y = lower), linetype = "dotted") +
-      geom_line(aes(y = upper), linetype = "dotted") +
-      expand_limits(y = 0)
-
-![](tools/README-unnamed-chunk-4-1.png)
+![](tools/README-unnamed-chunk-4-1.png)<!-- -->
 
 ## Installation
 
-    # install.packages("devtools")
-    devtools::install_github("poissonconsulting/smbr")
+``` r
+# install.packages("devtools")
+remotes::install_github("poissonconsulting/smbr2")
+```
 
 ## Citation
 
@@ -160,9 +195,9 @@ MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org
 ## Contribution
 
 Please report any
-[issues](https://github.com/poissonconsulting/smbr/issues).
+[issues](https://github.com/poissonconsulting/smbr2/issues).
 
-[Pull requests](https://github.com/poissonconsulting/smbr/pulls) are
+[Pull requests](https://github.com/poissonconsulting/smbr2/pulls) are
 always welcome.
 
 ## Code of Conduct
