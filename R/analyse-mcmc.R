@@ -77,7 +77,10 @@ analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nt
   obj$duration <- timer$elapsed()
   class(obj) <- c("cmdstan_mcmc_analysis", "cmdstan_analysis", "mb_analysis")
 
-  if (glance) print(glance(obj))
+  if (glance){
+    print(glance(obj))
+    print(diagnose(obj))
+  } 
 
   obj
 }

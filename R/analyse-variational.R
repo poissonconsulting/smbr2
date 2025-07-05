@@ -70,7 +70,10 @@ analyse1.cmdstan_variational_model <- function(model, data, loaded, nchains, nit
   obj$duration <- timer$elapsed()
   class(obj) <- c("cmdstan_variational_analysis", "cmdstan_analysis", "mb_analysis")
   
-  if (glance) print(glance(obj))
+  if (glance){
+    print(glance(obj))
+    print(diagnose(obj))
+  } 
   
   obj
 }
