@@ -25,7 +25,9 @@ using [`STAN`](http://mc-stan.org) with
 [rstan](https://mc-stan.org/rstan/) as the model-fitting engine.
 
 To begin using `smbr2`, you must install CmdStan by running
-`cmdstanr::install_cmdstan()`.
+`check_cmdstan_toolchain()` and `cmdstanr::install_cmdstan()`. For more
+installation instructions see
+[here](https://mc-stan.org/cmdstanr/articles/cmdstanr.html).
 
 The motivation for using `cmdstanr` is that it stays up-to-date with the
 most recent developments by the Stan dev team (i.e., via
