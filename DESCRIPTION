@@ -15,7 +15,7 @@ Imports:
     chk,
     cmdstanr,
     coda,
-    embr (>= 0.0.1.9036),
+    embr (>= 0.1.0),
     magrittr,
     mcmcr,
     nlist,
