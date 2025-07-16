@@ -1,14 +1,14 @@
 #' Analyse CmdStanR Pathfinder Model
 #'
 #' Internal method for analysing models using CmdStanR's pathfinder estimation.
-#' This method is dispatched when \code{stan_engine = "cmdstan-pathfinder"} in 
-#' \code{\link[embr]{analyse.mb_model}}.
+#' This method is dispatched when `stan_engine = "cmdstan-pathfinder"` in 
+#' [embr::analyse.mb_model()].
 #'
 #' @param model A mb_model to analyse.
 #' @param data A data.frame of the data.
 #' @param loaded A loaded CmdStanR model object.
 #' @inheritParams embr::analyse.mb_model
-#' @param ... Additional arguments passed to \code{\link[cmdstanr]{pathfinder}}.
+#' @param ... Additional arguments passed to [cmdstanr::pathfinder()].
 #' @return A cmdstan_pathfinder_analysis object.
 #' @keywords internal
 #' @export

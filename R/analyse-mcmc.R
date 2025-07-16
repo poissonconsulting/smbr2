@@ -1,14 +1,14 @@
 #' Analyse CmdStanR MCMC Model
 #'
 #' Internal method for analysing models using CmdStanR's MCMC sampling.
-#' This method is dispatched when \code{stan_engine = "cmdstan-mcmc"} in 
-#' \code{\link[embr]{analyse.mb_model}}.
+#' This method is dispatched when `stan_engine = "cmdstan-mcmc"` in 
+#' [embr::analyse.mb_model()].
 #'
 #' @param model A mb_model to analyse.
 #' @param data A data.frame of the data.
 #' @param loaded A loaded CmdStanR model object.
 #' @inheritParams embr::analyse.mb_model
-#' @param ... Additional arguments passed to \code{\link[cmdstanr]{sample}}.
+#' @param ... Additional arguments passed to [cmdstanr::sample()].
 #' @return A cmdstan_mcmc_analysis object.
 #' @keywords internal
 #' @export

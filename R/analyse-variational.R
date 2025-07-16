@@ -1,14 +1,14 @@
 #' Analyse CmdStanR Variational Model
 #'
 #' Internal method for analysing models using CmdStanR's variational inference (ADVI).
-#' This method is dispatched when \code{stan_engine = "cmdstan-variational"} in 
-#' \code{\link[embr]{analyse.mb_model}}.
+#' This method is dispatched when `stan_engine = "cmdstan-variational"` in 
+#' [embr::analyse.mb_model()].
 #'
 #' @param model A mb_model to analyse.
 #' @param data A data.frame of the data.
 #' @param loaded A loaded CmdStanR model object.
 #' @inheritParams embr::analyse.mb_model
-#' @param ... Additional arguments passed to \code{\link[cmdstanr]{variational}}.
+#' @param ... Additional arguments passed to [cmdstanr::variational()].
 #' @return A cmdstan_variational_analysis object.
 #' @keywords internal
 #' @export

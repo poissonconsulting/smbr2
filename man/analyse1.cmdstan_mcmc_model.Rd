@@ -42,7 +42,7 @@
 
 \item{niters_warmup}{A count of the number of warmup iterations. The default is to use the same number of iterations as \code{niters}. This is currently only implemented for Stan models.}
 
-\item{...}{Additional arguments passed to \code{\link[cmdstanr]{sample}}.}
+\item{...}{Additional arguments passed to \code{\link[cmdstanr:model-method-sample]{cmdstanr::sample()}}.}
 }
 \value{
 A cmdstan_mcmc_analysis object.
@@ -50,6 +50,6 @@ A cmdstan_mcmc_analysis object.
 \description{
 Internal method for analysing models using CmdStanR's MCMC sampling.
 This method is dispatched when \code{stan_engine = "cmdstan-mcmc"} in
-\code{\link[embr]{analyse.mb_model}}.
+\code{\link[embr:analyse.mb_model]{embr::analyse.mb_model()}}.
 }
 \keyword{internal}
