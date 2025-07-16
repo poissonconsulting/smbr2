@@ -28,6 +28,12 @@ jobs:
           extra-packages: any::covr, any::xml2
           needs: coverage
 
+      - name: Install CmdStan
+        run: |
+          cmdstanr::check_cmdstan_toolchain(fix = TRUE, quiet = TRUE)
+          cmdstanr::install_cmdstan(cores = 2, quiet = TRUE)
+        shell: Rscript {0}
+
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(
