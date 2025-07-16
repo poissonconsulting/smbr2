@@ -35,6 +35,7 @@ Suggests:
 Remotes: 
     poissonconsulting/bauw,
     poissonconsulting/embr,
+    poissonconsulting/rescale,
     poissonconsulting/smbr,
     poissonconsulting/timer,
     stan-dev/cmdstanr
