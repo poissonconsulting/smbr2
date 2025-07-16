@@ -27,7 +27,9 @@ knitr::opts_chunk$set(
 
 `smbr2` was developed as an alternative to [smbr](https://github.com/poissonconsulting/smbr). It uses [cmdstanr](https://mc-stan.org/cmdstanr/) instead of [rstan](https://mc-stan.org/rstan/) as the model-fitting engine. 
 
-The motivation for this is that `cmdstanr` is more up-to-date with latest developments by the Stan dev team (i.e. via [CmdStan](https://mc-stan.org/docs/cmdstan-guide/)). `smbr2` is able to incorporate improved functionality such as the new Stan syntax, faster parallelization, progress communication with parallelization, pedantic Stan model checking, Stan model diagnostics summary, and model fitting with alternative engines such as pathfinder, laplace approximation, varational inference, and optimization. 
+To begin using `smbr2`, you must install CmdStan by running `cmdstanr::install_cmdstan()`.
+
+The motivation for using `cmdstanr` is that it stays up-to-date with the most recent developments by the Stan dev team (i.e., via [CmdStan](https://mc-stan.org/docs/cmdstan-guide/)). `smbr2` is able to incorporate improved functionality such as the new Stan syntax, faster parallelization, progress communication with parallelization, pedantic Stan model checking, Stan model diagnostics summary, and model fitting with alternative engines such as pathfinder, Laplace approximation, variational inference, and optimization. 
 
 Note that some S3 methods for class `smb_model` and `smb_code` are imported from `smbr`. 
 `smbr` and `smbr2` are part of the [embr](https://github.com/poissonconsulting/embr) family of packages.

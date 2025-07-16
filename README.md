@@ -1,4 +1,3 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # smbr2
@@ -25,14 +24,17 @@ using [`STAN`](http://mc-stan.org) with
 [cmdstanr](https://mc-stan.org/cmdstanr/) instead of
 [rstan](https://mc-stan.org/rstan/) as the model-fitting engine.
 
-The motivation for this is that `cmdstanr` is more up-to-date with
-latest developments by the Stan dev team (i.e. via
+To begin using `smbr2`, you must install CmdStan by running
+`cmdstanr::install_cmdstan()`.
+
+The motivation for using `cmdstanr` is that it stays up-to-date with the
+most recent developments by the Stan dev team (i.e., via
 [CmdStan](https://mc-stan.org/docs/cmdstan-guide/)). `smbr2` is able to
 incorporate improved functionality such as the new Stan syntax, faster
 parallelization, progress communication with parallelization, pedantic
 Stan model checking, Stan model diagnostics summary, and model fitting
-with alternative engines such as pathfinder, laplace approximation,
-varational inference, and optimization.
+with alternative engines such as pathfinder, Laplace approximation,
+variational inference, and optimization.
 
 Note that some S3 methods for class `smb_model` and `smb_code` are
 imported from `smbr`. `smbr` and `smbr2` are part of the
@@ -47,138 +49,131 @@ syntax. If you don’t wish to update an old model, simply leave the
 
 ## Demonstration
 
-``` r
-library(bauw)
-library(ggplot2)
-library(magrittr)
-library(embr)
-library(smbr2)
-```
+    library(bauw)
+    library(ggplot2)
+    library(magrittr)
+    library(embr)
+    library(smbr2)
 
-``` r
-# define model in Stan language
-model <- model(code = "
-  data {
-      int nAnnual;
-      int nObs;
-      array[nObs] int Annual;
-      array[nObs] int Pairs;
-      array[nObs] real Year;
-  }
-  parameters {
-      vector[nAnnual] bAnnual;
-      real log_sAnnual;
-      real alpha;
-      real beta1;
-      real beta2;
-      real beta3;
-  }
-  transformed parameters {
-    real sAnnual;
-    sAnnual = exp(log_sAnnual);
-  }
-  model {
-      vector[nObs] ePairs;
-      log_sAnnual ~ normal(0, 10);
-      bAnnual ~ normal(0, sAnnual);
-      alpha ~ normal(0, 10);
-      beta1 ~ normal(0, 10);
-      beta2 ~ normal(0, 10);
-      beta3 ~ normal(0, 10);
-      for (i in 1:nObs) {
-        ePairs[i] = exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
-                      beta3 * Year[i]^3 + bAnnual[Annual[i]]);
+    # define model in Stan language
+    model <- model(code = "
+      data {
+          int nAnnual;
+          int nObs;
+          array[nObs] int Annual;
+          array[nObs] int Pairs;
+          array[nObs] real Year;
       }
-      target += poisson_lpmf(Pairs | ePairs);
-  }
-")
+      parameters {
+          vector[nAnnual] bAnnual;
+          real log_sAnnual;
+          real alpha;
+          real beta1;
+          real beta2;
+          real beta3;
+      }
+      transformed parameters {
+        real sAnnual;
+        sAnnual = exp(log_sAnnual);
+      }
+      model {
+          vector[nObs] ePairs;
+          log_sAnnual ~ normal(0, 10);
+          bAnnual ~ normal(0, sAnnual);
+          alpha ~ normal(0, 10);
+          beta1 ~ normal(0, 10);
+          beta2 ~ normal(0, 10);
+          beta3 ~ normal(0, 10);
+          for (i in 1:nObs) {
+            ePairs[i] = exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
+                          beta3 * Year[i]^3 + bAnnual[Annual[i]]);
+          }
+          target += poisson_lpmf(Pairs | ePairs);
+      }
+    ")
 
-# add R code to calculate derived parameters
-model %<>% update_model(new_expr = "
-  for (i in 1:length(Pairs)) {
-    prediction[i] <- exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
-                       beta3 * Year[i]^3 + bAnnual[Annual[i]])
-  }
-")
+    # add R code to calculate derived parameters
+    model %<>% update_model(new_expr = "
+      for (i in 1:length(Pairs)) {
+        prediction[i] <- exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
+                           beta3 * Year[i]^3 + bAnnual[Annual[i]])
+      }
+    ")
 
-# define data types and center year
-model %<>% update_model(
-  select_data = list(
-    "Pairs" = integer(), "Year*" = integer(),
-    Annual = factor()
-  ),
-  derived = "sAnnual",
-  random_effects = list(bAnnual = "Annual")
-)
+    # define data types and center year
+    model %<>% update_model(
+      select_data = list(
+        "Pairs" = integer(), "Year*" = integer(),
+        Annual = factor()
+      ),
+      derived = "sAnnual",
+      random_effects = list(bAnnual = "Annual")
+    )
 
-data <- bauw::peregrine
-data$Annual <- factor(data$Year)
+    data <- bauw::peregrine
+    data$Annual <- factor(data$Year)
 
-set.seed(42)
+    set.seed(42)
 
-# analyse
-analysis <- analyse(model, data = data, seed = 3L, glance = FALSE, stan_engine = "cmdstan-mcmc")
+    # analyse
+    analysis <- analyse(model, data = data, seed = 3L, glance = FALSE, stan_engine = "cmdstan-mcmc")
 
-# analyse pathfinder
-analysis_path <- analyse(model, data = data, seed = 3L, glance = FALSE, stan_engine = "cmdstan-pathfinder")
+    # analyse pathfinder
+    analysis_path <- analyse(model, data = data, seed = 3L, glance = FALSE, stan_engine = "cmdstan-pathfinder")
 
-# coefficient table
-coef(analysis, simplify = TRUE)
-#> # A tibble: 5 × 5
-#>   term        estimate   lower   upper svalue
-#>   <term>         <dbl>   <dbl>   <dbl>  <dbl>
-#> 1 alpha         4.26    4.19    4.34   11.6  
-#> 2 beta1         1.19    1.05    1.35   11.6  
-#> 3 beta2        -0.0183 -0.0765  0.0382  0.901
-#> 4 beta3        -0.274  -0.351  -0.202  11.6  
-#> 5 log_sAnnual  -2.23   -2.92   -1.75   11.6
+    # coefficient table
+    coef(analysis, simplify = TRUE)
+    #> # A tibble: 5 × 5
+    #>   term        estimate   lower   upper svalue
+    #>   <term>         <dbl>   <dbl>   <dbl>  <dbl>
+    #> 1 alpha         4.26    4.18    4.34    9.97 
+    #> 2 beta1         1.19    1.06    1.33    9.97 
+    #> 3 beta2        -0.0191 -0.0735  0.0401  0.937
+    #> 4 beta3        -0.272  -0.345  -0.207   9.97 
+    #> 5 log_sAnnual  -2.24   -2.81   -1.80    9.97
 
-coef(analysis_path, simplify = TRUE)
-#> # A tibble: 5 × 5
-#>   term        estimate   lower   upper svalue
-#>   <term>         <dbl>   <dbl>   <dbl>  <dbl>
-#> 1 alpha        4.25     4.21    4.30     9.97
-#> 2 beta1        1.24     1.14    1.28     9.97
-#> 3 beta2       -0.00877 -0.0507  0.0139   1.57
-#> 4 beta3       -0.298   -0.321  -0.255    9.97
-#> 5 log_sAnnual -2.23    -2.60   -2.10     9.97
+    coef(analysis_path, simplify = TRUE)
+    #> # A tibble: 5 × 5
+    #>   term        estimate   lower   upper svalue
+    #>   <term>         <dbl>   <dbl>   <dbl>  <dbl>
+    #> 1 alpha        4.25     4.21    4.30     8.97
+    #> 2 beta1        1.24     1.17    1.28     8.97
+    #> 3 beta2       -0.00877 -0.0531  0.0139   1.60
+    #> 4 beta3       -0.298   -0.321  -0.259    8.97
+    #> 5 log_sAnnual -2.23    -2.56   -2.10     8.97
 
-# trace plots
-plot(analysis)
-```
+    # trace plots
+    plot(analysis)
 
-![](tools/README-unnamed-chunk-3-1.png)<!-- -->![](tools/README-unnamed-chunk-3-2.png)<!-- -->
+![](tools/README-unnamed-chunk-3-1.png)![](tools/README-unnamed-chunk-3-2.png)
 
-``` r
-# make predictions by varying year with other predictors including the random effect of Annual held constant
-year <- predict(analysis, new_data = "Year")
-year_path <- predict(analysis_path, new_data = "Year")
+    # make predictions by varying year with other predictors including the random effect of Annual held constant
+    year <- predict(analysis, new_data = "Year")
+    year_path <- predict(analysis_path, new_data = "Year")
 
-years <- dplyr::bind_rows(list("mcmc" = year, "pathfinder" = year_path), .id = "engine")
+    years <- dplyr::bind_rows(list("mcmc" = year, "pathfinder" = year_path), .id = "engine")
 
-# plot those predictions
-ggplot(data = years, aes(x = Year, y = estimate)) +
-  geom_point(data = bauw::peregrine, aes(y = Pairs)) +
-  geom_line(aes(color = engine)) +
-  geom_line(aes(y = lower, color = engine), linetype = "dotted") +
-  geom_line(aes(y = upper, color = engine), linetype = "dotted") +
-  expand_limits(y = 0)
-```
+    # plot those predictions
+    ggplot(data = years, aes(x = Year, y = estimate)) +
+      geom_point(data = bauw::peregrine, aes(y = Pairs)) +
+      geom_line(aes(color = engine)) +
+      geom_line(aes(y = lower, color = engine), linetype = "dotted") +
+      geom_line(aes(y = upper, color = engine), linetype = "dotted") +
+      expand_limits(y = 0)
 
-![](tools/README-unnamed-chunk-4-1.png)<!-- -->
+![](tools/README-unnamed-chunk-4-1.png)
 
 ## Installation
 
-``` r
-# install.packages("devtools")
-remotes::install_github("poissonconsulting/smbr2")
-```
+    # install.packages("devtools")
+    remotes::install_github("poissonconsulting/smbr2")
 
 ## Citation
 
     To cite smbr in publications use:
 
-      Chris Muir and Joe Thorley (2018) smbr: Analyses Using STAN. doi:
+      Chris Muir and Joe Thorley (2018) smbr: Analyses
+      Using STAN. doi:
       https://doi.org/10.5281/zenodo.1162382.
 
     A BibTeX entry for LaTeX users is
