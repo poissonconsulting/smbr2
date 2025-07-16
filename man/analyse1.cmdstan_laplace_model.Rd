@@ -50,6 +50,6 @@ A cmdstan_laplace_analysis object.
 \description{
 Internal method for analysing models using CmdStanR's Laplace approximation.
 This method is dispatched when \code{stan_engine = "cmdstan-laplace"} in
-\code{\link{analyse.mb_model}}.
+\code{\link[embr]{analyse.mb_model}}.
 }
 \keyword{internal}

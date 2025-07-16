@@ -2,7 +2,7 @@
 #'
 #' Internal method for analysing models using CmdStanR's variational inference (ADVI).
 #' This method is dispatched when \code{stan_engine = "cmdstan-variational"} in 
-#' \code{\link{analyse.mb_model}}.
+#' \code{\link[embr]{analyse.mb_model}}.
 #'
 #' @param model A mb_model to analyse.
 #' @param data A data.frame of the data.

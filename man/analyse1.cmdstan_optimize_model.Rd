@@ -50,6 +50,6 @@ A cmdstan_optimize_analysis object.
 \description{
 Internal method for analysing models using CmdStanR's optimization.
 This method is dispatched when \code{stan_engine = "cmdstan-optimize"} in
-\code{\link{analyse.mb_model}}.
+\code{\link[embr]{analyse.mb_model}}.
 }
 \keyword{internal}

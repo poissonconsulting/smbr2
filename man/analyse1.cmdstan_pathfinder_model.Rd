@@ -50,6 +50,6 @@ A cmdstan_pathfinder_analysis object.
 \description{
 Internal method for analysing models using CmdStanR's pathfinder estimation.
 This method is dispatched when \code{stan_engine = "cmdstan-pathfinder"} in
-\code{\link{analyse.mb_model}}.
+\code{\link[embr]{analyse.mb_model}}.
 }
 \keyword{internal}
