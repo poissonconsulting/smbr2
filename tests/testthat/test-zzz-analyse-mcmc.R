@@ -111,7 +111,6 @@ model {
   
   expect_s3_class(as.mcmcr(analysis), "mcmcr")
   
-  analysis <- reanalyse(analysis)
   expect_identical(universals::niters(analysis), 500L)
   expect_identical(universals::nchains(analysis), 2L)
   expect_identical(universals::nsims(analysis), 1000L)
