@@ -70,10 +70,7 @@ analyse1.cmdstan_pathfinder_model <- function(model, data, loaded, nchains, nite
   obj$duration <- timer$elapsed()
   class(obj) <- c("cmdstan_pathfinder_analysis", "cmdstan_analysis", "mb_analysis")
   
-  if (glance){
-    print(glance(obj))
-    print(diagnose(obj))
-  } 
+  if (glance) print(glance(obj))
   
   obj
 }
