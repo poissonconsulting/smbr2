@@ -53,15 +53,14 @@ model {
 
   diagnostics <- diagnose(analysis_mcmc)
   expect_s3_class(diagnostics, "cmdstan_diagnostics")
-  expect_identical(names(diagnostics), c("status", "stdout", "stderr", "timeout"))
+  expect_snapshot(diagnostics)
 
   diagnostics <- diagnose(analysis_pathfinder)
   expect_s3_class(diagnostics, "cmdstan_diagnostics")
-  expect_identical(names(diagnostics), c("status", "stdout", "stderr", "timeout"))
+  expect_snapshot(diagnostics)
   
   diagnostics <- diagnose(analysis_variational)
   expect_s3_class(diagnostics, "cmdstan_diagnostics")
-  expect_identical(names(diagnostics), c("status", "stdout", "stderr", "timeout"))
-  
+  expect_snapshot(diagnostics)
 })
 

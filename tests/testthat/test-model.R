@@ -119,24 +119,13 @@ test_that("pars derived(", {
   expect_identical(class(model), c("smb_model", "mb_model"))
   expect_true(is.smb_model(model))
   
-  expect_identical(pars(model), c("bar", "foo", "mu_y", "sigma_y", "tau_y", "variance_y"))
-  
-  expect_identical(
-    pars(model, "primary"),
-    c("foo", "mu_y", "tau_y")
-  )
-  
-  expect_identical(pars(model, "primary", scalar = TRUE), c("mu_y", "tau_y"))
-  
-  expect_identical(pars(model, param_type = "derived"), c("bar", "sigma_y", "variance_y"))
-  expect_identical(
-    pars(model, param_type = "derived", scalar = TRUE),
-    c("bar", "sigma_y", "variance_y")
-  )
-  
-  expect_identical(pars(model, "fixed", scalar = TRUE), c("mu_y", "tau_y"))
-  
-  expect_identical(embr::monitor(model), c("bar", "mu_y", "sigma_y", "tau_y", "variance_y"))
+  expect_snapshot(pars(model))
+  expect_snapshot(pars(model, "primary"))
+  expect_snapshot(pars(model, "primary", scalar = TRUE))
+  expect_snapshot(pars(model, param_type = "derived"))
+  expect_snapshot(pars(model, param_type = "derived", scalar = TRUE))
+  expect_snapshot(pars(model, "fixed", scalar = TRUE))
+  expect_snapshot(embr::monitor(model))
   
   expect_error(drop_pars(model, "foo"), "parameter 'foo'")
   expect_error(drop_pars(model, "sigma_y"), "parameter 'sigma_y'")
