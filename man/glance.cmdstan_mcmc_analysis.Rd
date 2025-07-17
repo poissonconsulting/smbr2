@@ -49,5 +49,5 @@ requiring longer warmup or model reparameterization.
 }
 }
 \seealso{
-\code{\link[embr:reexports]{embr::glance()}}, \code{\link[cmdstanr:model-method-diagnose]{cmdstanr::diagnose()}}
+\code{\link[embr:reexports]{embr::glance()}}, \code{\link[=diagnose]{diagnose()}}
 }

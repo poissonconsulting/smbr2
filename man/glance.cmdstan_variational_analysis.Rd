@@ -32,5 +32,5 @@ algorithm failed to converge to a stable ELBO (Evidence Lower BOund).
 }
 }
 \seealso{
-\code{\link[embr:reexports]{embr::glance()}}, \code{\link[cmdstanr:model-method-diagnose]{cmdstanr::diagnose()}}
+\code{\link[embr:reexports]{embr::glance()}}, \code{\link[=diagnose]{diagnose()}}
 }
