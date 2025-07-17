@@ -16,6 +16,7 @@ Imports:
     cmdstanr,
     coda,
     embr (>= 0.1.0),
+    generics,
     magrittr,
     mcmcr,
     nlist,
