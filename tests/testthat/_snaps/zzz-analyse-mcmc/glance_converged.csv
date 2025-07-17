@@ -1,2 +1,2 @@
 n,K,nchains,niters,nthin,ess,rhat,converged,num_divergent,max_treedepth,ebfmi
-40,5,2,500,1,135,1.028,FALSE,0,0,0.438
+40,5,2,500,1,135,1.028,TRUE,0,0,0.438
