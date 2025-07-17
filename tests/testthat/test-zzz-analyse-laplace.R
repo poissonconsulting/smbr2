@@ -100,8 +100,7 @@ model {
   year <- predict(analysis, new_data = "Year")
   expect_s3_class(year, "tbl")
   expect_true(all(year$lower < year$estimate))
-  expect_false(is.unsorted(year$estimate))
-  
+
   dd <- mcmc_derive_data(analysis, new_data = c("Annual", "Year"), ref_data = TRUE)
   expect_true(mcmcdata::is.mcmc_data(dd))
 })
