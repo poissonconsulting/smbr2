@@ -6,9 +6,9 @@ generics::glance
 #' Provides a one-row summary of key diagnostics for MCMC analysis results.
 #'
 #' @param x A `cmdstan_mcmc_analysis` object.
-#' @param rhat The R-hat threshold for convergence (default: 1.1).
-#' @param esr The effective sample size ratio threshold (default: 0.33).
-#' @param ... Additional arguments passed to next method.
+#' @param rhat The R-hat threshold for convergence.
+#' @param esr The effective sample size ratio threshold.
+#' @param ... Additional arguments (unused).
 #'
 #' @return A tibble with one row containing:
 #' \describe{
@@ -39,12 +39,12 @@ generics::glance
 #'
 #' @seealso [embr::glance()], [diagnose()]
 #' @export
-glance.cmdstan_mcmc_analysis <- function(x, rhat = getOption("mb.rhat", 1.1), esr = getOption("mb.esr", 0.33), ...) {
+glance.cmdstan_mcmc_analysis <- function(x, ...) {
+  # chk_unused(...)
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_mcmc_analysis")
-  gl <- glance(x2)
+  gl <- glance(x2, ...)
   diag_summary <- x$cmdstan_fit$diagnostic_summary()
-
   gl$num_divergent <- sum(diag_summary$num_divergent)
   gl$max_treedepth <- sum(diag_summary$num_max_treedepth)
   gl$ebfmi <- min(diag_summary$ebfmi)
@@ -57,7 +57,7 @@ glance.cmdstan_mcmc_analysis <- function(x, rhat = getOption("mb.rhat", 1.1), es
 #' Provides a one-row summary of key diagnostics for Pathfinder analysis results.
 #'
 #' @param x A `cmdstan_pathfinder_analysis` object.
-#' @param ... Additional arguments passed to next method.
+#' @param ... Additional arguments (unused).
 #'
 #' @return A tibble with one row containing:
 #' \describe{
@@ -76,18 +76,15 @@ glance.cmdstan_mcmc_analysis <- function(x, rhat = getOption("mb.rhat", 1.1), es
 #' @seealso [embr::glance()], [diagnose()]
 #' @export
 glance.cmdstan_pathfinder_analysis <- function(x, ...) {
+  chk_unused(...)
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_pathfinder_analysis")
   gl <- glance(x2)
-  
-  # Remove MCMC-specific columns that don't make sense for pathfinder
   gl$nchains <- NULL
   gl$niters <- NULL
   gl$nthin <- NULL
   gl$ess <- NULL
   gl$rhat <- NULL
-  
-  # Add pathfinder-specific diagnostics
   gl$return_code <- x$cmdstan_fit$return_codes()
   gl$converged <- gl$return_code == 0
   
@@ -99,7 +96,7 @@ glance.cmdstan_pathfinder_analysis <- function(x, ...) {
 #' Provides a one-row summary of optimization analysis results.
 #'
 #' @param x A `cmdstan_optimize_analysis` object.
-#' @param ... Additional arguments passed to next method.
+#' @param ... Additional arguments (unused).
 #'
 #' @return A tibble with one row containing:
 #' \describe{
@@ -118,18 +115,15 @@ glance.cmdstan_pathfinder_analysis <- function(x, ...) {
 #' @seealso [embr::glance()]
 #' @export
 glance.cmdstan_optimize_analysis <- function(x, ...) {
+  chk_unused(...)
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_optimize_analysis")
   gl <- glance(x2)
-  
-  # Remove MCMC-specific columns that don't make sense for optimization
   gl$nchains <- NULL
   gl$niters <- NULL
   gl$nthin <- NULL
   gl$ess <- NULL
   gl$rhat <- NULL
-  
-  # Add optimization-specific diagnostics
   gl$return_code <- x$cmdstan_fit$return_codes()
   gl$converged <- gl$return_code == 0
   
@@ -141,7 +135,7 @@ glance.cmdstan_optimize_analysis <- function(x, ...) {
 #' Provides a one-row summary of Laplace approximation analysis results.
 #'
 #' @param x A `cmdstan_laplace_analysis` object.
-#' @param ... Additional arguments passed to next method.
+#' @param ... Additional arguments (unused).
 #'
 #' @return A tibble with one row containing:
 #' \describe{
@@ -160,18 +154,15 @@ glance.cmdstan_optimize_analysis <- function(x, ...) {
 #' @seealso [embr::glance()]
 #' @export
 glance.cmdstan_laplace_analysis <- function(x, ...) {
+  chk_unused(...)
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_laplace_analysis")
   gl <- glance(x2)
-  
-  # Remove MCMC-specific columns that don't make sense for Laplace
   gl$nchains <- NULL
   gl$niters <- NULL
   gl$nthin <- NULL
   gl$ess <- NULL
   gl$rhat <- NULL
-  
-  # Add Laplace-specific diagnostics
   gl$return_code <- x$cmdstan_fit$return_codes()
   gl$converged <- gl$return_code == 0
   
@@ -183,7 +174,7 @@ glance.cmdstan_laplace_analysis <- function(x, ...) {
 #' Provides a one-row summary of variational inference analysis results.
 #'
 #' @param x A `cmdstan_variational_analysis` object.
-#' @param ... Additional arguments passed to next method.
+#' @param ... Additional arguments (unused).
 #'
 #' @return A tibble with one row containing:
 #' \describe{
@@ -202,18 +193,15 @@ glance.cmdstan_laplace_analysis <- function(x, ...) {
 #' @seealso [embr::glance()], [diagnose()]
 #' @export
 glance.cmdstan_variational_analysis <- function(x, ...) {
+  chk_unused(...)
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_variational_analysis")
   gl <- glance(x2)
-  
-  # Remove MCMC-specific columns that don't make sense for variational
   gl$nchains <- NULL
   gl$niters <- NULL
   gl$nthin <- NULL
   gl$ess <- NULL
   gl$rhat <- NULL
-  
-  # Add variational-specific diagnostics
   gl$return_code <- x$cmdstan_fit$return_codes()
   gl$converged <- gl$return_code == 0
   

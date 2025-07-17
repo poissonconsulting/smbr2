@@ -4,33 +4,19 @@
 \alias{glance.cmdstan_pathfinder_analysis}
 \title{Glance at CmdStanR Pathfinder Analysis}
 \usage{
-\method{glance}{cmdstan_pathfinder_analysis}(
-  x,
-  rhat = getOption("mb.rhat", 1.1),
-  esr = getOption("mb.esr", 0.33),
-  ...
-)
+\method{glance}{cmdstan_pathfinder_analysis}(x, ...)
 }
 \arguments{
 \item{x}{A \code{cmdstan_pathfinder_analysis} object.}
 
-\item{rhat}{The R-hat threshold for convergence (default: 1.1).}
-
-\item{esr}{The effective sample size ratio threshold (default: 0.33).}
-
-\item{...}{Additional arguments passed to next method.}
+\item{...}{Additional arguments (unused).}
 }
 \value{
 A tibble with one row containing:
 \describe{
 \item{n}{Number of observations in the dataset}
 \item{K}{Number of parameters}
-\item{nchains}{Number of MCMC chains}
-\item{niters}{Number of iterations per chain (post-warmup)}
-\item{nthin}{Thinning interval}
-\item{ess}{Minimum effective sample size across all parameters}
-\item{rhat}{Maximum R-hat value across all parameters}
-\item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
+\item{converged}{Logical indicating pathfinder convergence}
 \item{return_code}{Pathfinder return code.
 \strong{Problem indicators}: Non-zero values indicate pathfinder issues}
 }

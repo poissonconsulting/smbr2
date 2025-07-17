@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A \code{cmdstan_laplace_analysis} object.}
 
-\item{...}{Additional arguments passed to next method.}
+\item{...}{Additional arguments (unused).}
 }
 \value{
 A tibble with one row containing:

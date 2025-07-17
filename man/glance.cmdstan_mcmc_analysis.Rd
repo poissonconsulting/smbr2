@@ -4,21 +4,16 @@
 \alias{glance.cmdstan_mcmc_analysis}
 \title{Glance at CmdStanR MCMC Analysis}
 \usage{
-\method{glance}{cmdstan_mcmc_analysis}(
-  x,
-  rhat = getOption("mb.rhat", 1.1),
-  esr = getOption("mb.esr", 0.33),
-  ...
-)
+\method{glance}{cmdstan_mcmc_analysis}(x, ...)
 }
 \arguments{
 \item{x}{A \code{cmdstan_mcmc_analysis} object.}
 
-\item{rhat}{The R-hat threshold for convergence (default: 1.1).}
+\item{...}{Additional arguments (unused).}
 
-\item{esr}{The effective sample size ratio threshold (default: 0.33).}
+\item{rhat}{The R-hat threshold for convergence.}
 
-\item{...}{Additional arguments passed to next method.}
+\item{esr}{The effective sample size ratio threshold.}
 }
 \value{
 A tibble with one row containing:
@@ -31,7 +26,7 @@ A tibble with one row containing:
 \item{ess}{Minimum effective sample size across all parameters}
 \item{rhat}{Maximum R-hat value across all parameters}
 \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
-\item{divergent}{Number of divergent transitions across all chains.
+\item{num_divergent}{Number of divergent transitions across all chains.
 \strong{Problem indicators}: Any value > 0 indicates sampling issues}
 \item{max_treedepth}{Number of transitions that hit maximum tree depth.
 \strong{Problem indicators}: Values > 0 may indicate inefficient sampling}
