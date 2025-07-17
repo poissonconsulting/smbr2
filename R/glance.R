@@ -40,14 +40,13 @@ generics::glance
 #' @seealso [embr::glance()], [diagnose()]
 #' @export
 glance.cmdstan_mcmc_analysis <- function(x, ...) {
-  # chk_unused(...)
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_mcmc_analysis")
   gl <- glance(x2, ...)
   diag_summary <- x$cmdstan_fit$diagnostic_summary()
   gl$num_divergent <- sum(diag_summary$num_divergent)
   gl$max_treedepth <- sum(diag_summary$num_max_treedepth)
-  gl$ebfmi <- min(diag_summary$ebfmi)
+  gl$ebfmi <- signif(min(diag_summary$ebfmi), digits = 3)
 
   gl
 }
