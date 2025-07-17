@@ -6,8 +6,6 @@ generics::glance
 #' Provides a one-row summary of key diagnostics for MCMC analysis results.
 #'
 #' @param x A `cmdstan_mcmc_analysis` object.
-#' @param rhat The R-hat threshold for convergence.
-#' @param esr The effective sample size ratio threshold.
 #' @param ... Additional arguments (unused).
 #'
 #' @return A tibble with one row containing:
@@ -17,8 +15,6 @@ generics::glance
 #'   \item{nchains}{Number of MCMC chains}
 #'   \item{niters}{Number of iterations per chain (post-warmup)}
 #'   \item{nthin}{Thinning interval}
-#'   \item{ess}{Minimum effective sample size across all parameters}
-#'   \item{rhat}{Maximum R-hat value across all parameters}
 #'   \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
 #'   \item{num_divergent}{Number of divergent transitions across all chains. 
 #'     **Problem indicators**: Any value > 0 indicates sampling issues}

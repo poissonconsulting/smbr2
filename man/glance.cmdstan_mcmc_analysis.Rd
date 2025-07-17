@@ -10,10 +10,6 @@
 \item{x}{A \code{cmdstan_mcmc_analysis} object.}
 
 \item{...}{Additional arguments (unused).}
-
-\item{rhat}{The R-hat threshold for convergence.}
-
-\item{esr}{The effective sample size ratio threshold.}
 }
 \value{
 A tibble with one row containing:
@@ -23,8 +19,6 @@ A tibble with one row containing:
 \item{nchains}{Number of MCMC chains}
 \item{niters}{Number of iterations per chain (post-warmup)}
 \item{nthin}{Thinning interval}
-\item{ess}{Minimum effective sample size across all parameters}
-\item{rhat}{Maximum R-hat value across all parameters}
 \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
 \item{num_divergent}{Number of divergent transitions across all chains.
 \strong{Problem indicators}: Any value > 0 indicates sampling issues}
