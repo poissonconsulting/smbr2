@@ -70,6 +70,12 @@ model {
   expect_identical(class(analysis), c("cmdstan_optimize_analysis", "cmdstan_analysis", "mb_analysis"))
   expect_true(is.cmdstan_analysis(analysis))
   
+  analysis_test <- analysis
+  analysis_test$cmdstan_fit <- NULL
+  analysis_test$duration <- NULL
+  analysis_test$model <- NULL
+  expect_snapshot(analysis_test)
+  
   summary <- analysis$cmdstan_fit$summary()
-  expect_s3_class(summary, "tbl")
+  expect_snapshot_data(summary)
 })

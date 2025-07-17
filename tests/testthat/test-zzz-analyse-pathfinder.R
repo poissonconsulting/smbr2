@@ -70,9 +70,11 @@ model {
   expect_identical(class(analysis), c("cmdstan_pathfinder_analysis", "cmdstan_analysis", "mb_analysis"))
   expect_true(is.cmdstan_analysis(analysis))
   
-  expect_identical(niters(analysis), 500L)
-  expect_identical(nchains(analysis), 1L)
-  expect_identical(nsims(analysis), 500L)
+  analysis_test <- analysis
+  analysis_test$cmdstan_fit <- NULL
+  analysis_test$duration <- NULL
+  analysis_test$model <- NULL
+  expect_snapshot(analysis_test)
   
   expect_identical(pars(analysis, "fixed"), pars(model, "fixed"))
   expect_identical(pars(analysis, "random"), pars(model, "random"))
@@ -85,21 +87,30 @@ model {
   expect_s3_class(as.mcmcr(analysis), "mcmcr")
   
   glance <- glance(analysis)
-  expect_s3_class(glance, "tbl")
-  expect_identical(colnames(glance), c("n", "K", "nchains", "niters", "nthin", "ess", "rhat", "converged"))
-  expect_identical(glance$nchains, 1L)
+  expect_snapshot_data(glance)
   
   coef <- coef(analysis, simplify = TRUE)
-  expect_s3_class(coef, "tbl")
-  expect_identical(colnames(coef), c("term", "estimate", "lower", "upper", "svalue"))
+  expect_snapshot_data(coef)
+  expect_s3_class(coef, "mb_analysis_coef")
+  
+  coef_simp <- coef(analysis, "derived", simplify = TRUE)
+  expect_snapshot_data(coef_simp)
+  
+  coef_all <- coef(analysis, "all", simplify = TRUE)
+  expect_snapshot_data(coef_all)
   
   tidy <- tidy(analysis)
-  expect_identical(colnames(tidy), c("term", "estimate", "lower", "upper", "esr", "rhat"))
+  expect_snapshot_data(tidy)
   
   year <- predict(analysis, new_data = "Year")
-  expect_s3_class(year, "tbl")
-  expect_true(all(year$lower < year$estimate))
-  # expect_false(is.unsorted(year$estimate))
+  expect_snapshot_data(year)
+  
+  expect_true(all(year$estimate > year$lower))
+  expect_true(all(year$estimate < year$upper))
+  
+  x <- unlist(estimates(analysis))
+  names(x) <- NULL
+  expect_equal(x, coef$estimate)
   
   dd <- mcmc_derive_data(analysis, new_data = c("Annual", "Year"), ref_data = TRUE)
   expect_true(mcmcdata::is.mcmc_data(dd))
