@@ -66,7 +66,7 @@ model {
   
   seed <- 34
   analysis <- embr::analyse(model, data = data, stan_engine = "cmdstan-laplace",
-                            seed = seed)
+                            seed = seed, init = 0)
   
   expect_identical(class(analysis), c("cmdstan_laplace_analysis", "cmdstan_analysis", "mb_analysis"))
   expect_true(is.cmdstan_analysis(analysis))
