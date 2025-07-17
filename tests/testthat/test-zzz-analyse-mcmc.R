@@ -107,6 +107,10 @@ model {
   glance <- glance(analysis)
   expect_snapshot_data(glance)
   
+  # check args passed
+  glance_converged <- glance(analysis, rhat = 1.5, esr = 0.1)
+  expect_snapshot_data(glance_converged)
+  
   waic <- IC(analysis)
   expect_snapshot(waic)
   
