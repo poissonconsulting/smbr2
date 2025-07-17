@@ -114,7 +114,7 @@ model {
   expect_identical(universals::niters(analysis), 500L)
   expect_identical(universals::nchains(analysis), 2L)
   expect_identical(universals::nsims(analysis), 1000L)
-  expect_identical(embr::ngens(analysis), 4000L)
+  expect_identical(embr::ngens(analysis), 2000L)
   
   monitor <- analysis$cmdstan_fit$summary()
   rhat <- rhat(analysis, by = "term", as_df = TRUE)
@@ -130,7 +130,7 @@ model {
   expect_s3_class(glance, "tbl")
   expect_identical(glance$n, 40L)
   expect_identical(glance$K, 5L)
-  expect_identical(glance$nthin, 2L)
+  expect_identical(glance$nthin, 1L)
   
   expect_identical(
     colnames(glance),
