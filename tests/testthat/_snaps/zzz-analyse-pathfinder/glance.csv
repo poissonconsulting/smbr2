@@ -1,2 +1,2 @@
-n,K,nchains,niters,nthin,ess,rhat,converged
-40,5,1,500,1,338,1.014,FALSE
+n,K,converged,return_code
+40,5,TRUE,0
