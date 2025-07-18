@@ -13,19 +13,15 @@ Depends:
 Imports: 
     broom,
     chk,
+    cmdstanr,
     coda,
-    embr (>= 0.0.1.9036),
-    lubridate,
+    embr (>= 0.1.0),
+    generics,
     magrittr,
     mcmcr,
     nlist,
-    plyr,
-    purrr,
-    rlang,
-    rstan,
-    stringr,
+    smbr,
     term,
-    tibble,
     timer,
     utils
 Suggests: 
@@ -35,13 +31,16 @@ Suggests:
     ggplot2,
     mcmcdata,
     RcppEigen,
+    readr,
     testthat,
     universals
 Remotes: 
     poissonconsulting/bauw,
     poissonconsulting/embr,
-    poissonconsulting/mcmcdata,
-    poissonconsulting/timer
+    poissonconsulting/rescale,
+    poissonconsulting/smbr,
+    poissonconsulting/timer,
+    stan-dev/cmdstanr
 Encoding: UTF-8
 RoxygenNote: 7.3.2.9000
 Roxygen: list(markdown = TRUE)

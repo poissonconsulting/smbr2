@@ -1,21 +1,18 @@
 #' @export
-load_model.smb_model <- function(x, quiet, ...) {
+load_model.cmdstan_model <- function(x, quiet, ...) {
   chk_flag(quiet)
-
-  capture_output <- if (quiet) {
-    function(x) suppressWarnings(capture.output(x))
-  } else {
-    eval
-  }
-
-
+  
+  capture_output <- if (quiet) function(x){
+    suppressMessages(suppressWarnings(capture.output(x))) 
+  }  else {
+    identity
+  } 
+  
   capture_output(
-    stanc <- rstan::stanc(model_code = template(x))
+    stan_model <- cmdstanr::cmdstan_model(stan_file = cmdstanr::write_stan_file(template(x)), 
+                                          quiet = TRUE, # always quieten clang etc. compilation msgs
+                                          pedantic = !quiet)
   )
-  capture_output(
-    stan_model <- rstan::stan_model(
-      stanc_ret = stanc, save_dso = FALSE, auto_write = FALSE
-    )
-  )
+
   stan_model
 }

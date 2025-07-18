@@ -1,6 +1,6 @@
 Sys.setenv("R_TESTS" = "")
 
 library(testthat)
-library(smbr)
+library(smbr2)
 
-test_check("smbr")
+test_check("smbr2")

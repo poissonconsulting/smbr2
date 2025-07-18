@@ -1,3 +1,3 @@
 test_that("is works", {
-  expect_false(is.smb_code(1))
+  expect_false(is.cmdstan_analysis(1))
 })
