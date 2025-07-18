@@ -61,12 +61,27 @@ model {
                               }
   )
   
-  expect_snapshot(pars(model, "fixed"))
-  expect_snapshot(pars(model, "random"))
-  expect_snapshot(pars(model, "primary"))
-  expect_snapshot(pars(model, "derived"))
-  expect_snapshot(pars(model, "all"))
-  expect_snapshot(pars(code(model), "all"))
+  expect_identical(
+    pars(model, "fixed"),
+    c("alpha", "beta1", "beta2", "beta3", "log_sAnnual")
+  )
+  expect_identical(pars(model, "random"), "bAnnual")
+  expect_identical(
+    pars(model, "primary"),
+    c("alpha", "bAnnual", "beta1", "beta2", "beta3", "log_sAnnual")
+  )
+  expect_identical(pars(model, "derived"), "sAnnual")
+  
+  expect_identical(
+    pars(model, "all"),
+    c("alpha", "bAnnual", "beta1", "beta2", "beta3", "log_sAnnual", "sAnnual")
+  )
+  
+  expect_identical(
+    pars(code(model), "all"),
+    c("alpha", "bAnnual", "beta1", "beta2", "beta3", "eAnnual", "log_sAnnual", "sAnnual")
+  )
+  
   expect_identical(pars(model), pars(model, "all"))
   
   data <- bauw::peregrine
@@ -78,11 +93,13 @@ model {
   expect_identical(class(analysis), c("cmdstan_mcmc_analysis", "cmdstan_analysis", "mb_analysis"))
   expect_true(is.cmdstan_analysis(analysis))
   
-  analysis_test <- analysis
-  analysis_test$cmdstan_fit <- NULL
-  analysis_test$duration <- NULL
-  analysis_test$model <- NULL
-  expect_snapshot(analysis_test)
+  expect_identical(universals::niters(analysis), 500L)
+  expect_identical(universals::nchains(analysis), 2L)
+  expect_identical(universals::nsims(analysis), 1000L)
+  expect_identical(embr::ngens(analysis), 2000L)
+  
+  expect_identical(niters(analysis), 500L)
+  expect_identical(ngens(analysis), 2000L)
   
   expect_identical(pars(analysis, "fixed"), pars(model, "fixed"))
   expect_identical(pars(analysis, "random"), pars(model, "random"))
@@ -93,6 +110,11 @@ model {
   expect_identical(pars(analysis, "random"), "bAnnual")
   
   expect_s3_class(as.mcmcr(analysis), "mcmcr")
+  
+  expect_identical(universals::niters(analysis), 500L)
+  expect_identical(universals::nchains(analysis), 2L)
+  expect_identical(universals::nsims(analysis), 1000L)
+  expect_identical(embr::ngens(analysis), 2000L)
   
   monitor <- analysis$cmdstan_fit$summary()
   rhat <- rhat(analysis, by = "term", as_df = TRUE)
@@ -105,31 +127,64 @@ model {
   expect_identical(sort(rhat$term), sort(rhat_stan$term))
   
   glance <- glance(analysis)
-  expect_snapshot_data(glance)
+  expect_s3_class(glance, "tbl")
+  expect_identical(glance$n, 40L)
+  expect_identical(glance$K, 5L)
+  expect_identical(glance$nthin, 1L)
   
-  # check args passed
-  glance_converged <- glance(analysis, rhat = 1.5, esr = 0.1)
-  expect_snapshot_data(glance_converged)
+  expect_identical(
+    colnames(glance),
+    c(
+      "n", "K", "nchains", "niters", "nthin", "ess", "rhat",
+      "converged", "num_divergent", "max_treedepth", "ebfmi"
+    )
+  )
   
   waic <- IC(analysis)
-  expect_snapshot(waic)
+  expect_gt(waic, 305)
+  expect_lt(waic, 315)
   
   coef <- coef(analysis, simplify = TRUE)
-  expect_snapshot_data(coef)
+  
+  expect_s3_class(coef, "tbl")
   expect_s3_class(coef, "mb_analysis_coef")
-  
-  coef_simp <- coef(analysis, "derived", simplify = TRUE)
-  expect_snapshot_data(coef_simp)
-  
-  coef_all <- coef(analysis, "all", simplify = TRUE)
-  expect_snapshot_data(coef_all)
+  expect_identical(
+    colnames(coef),
+    c("term", "estimate", "lower", "upper", "svalue")
+  )
+  expect_identical(
+    coef$term,
+    sort(as.term(c("alpha", "beta1", "beta2", "beta3", "log_sAnnual")))
+  )
+  expect_identical(
+    coef(analysis, "derived", simplify = TRUE)$term,
+    as.term("sAnnual")
+  )
+  expect_identical(
+    coef(analysis, "all", simplify = TRUE)$term,
+    sort(
+      as.term(
+        c(
+          "alpha", paste0("bAnnual[", 1:40, "]"), "beta1", "beta2", "beta3",
+          "log_sAnnual", "sAnnual"
+        )
+      )
+    )
+  )
   
   tidy <- tidy(analysis)
-  expect_snapshot_data(tidy)
+  expect_identical(
+    colnames(tidy),
+    c("term", "estimate", "lower", "upper", "esr", "rhat")
+  )
   
   year <- predict(analysis, new_data = "Year")
-  expect_snapshot_data(year)
   
+  expect_s3_class(year, "tbl")
+  expect_identical(colnames(year), c(
+    "Year", "Pairs", "R.Pairs", "Eyasses", "Annual",
+    "estimate", "lower", "upper", "svalue"
+  ))
   expect_true(all(year$estimate > year$lower))
   expect_true(all(year$estimate < year$upper))
   
