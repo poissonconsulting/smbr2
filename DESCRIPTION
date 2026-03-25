@@ -1,6 +1,6 @@
 Package: smbr2
 Title: Facilitates Bayesian Analysis using STAN with CmdStanR
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: 
     person("Seb", "Dalgarno", , "seb@poissonconsulting.ca", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3658-4517"))
@@ -42,7 +42,7 @@ Remotes:
     poissonconsulting/timer,
     stan-dev/cmdstanr
 Encoding: UTF-8
-RoxygenNote: 7.3.2.9000
+RoxygenNote: 7.3.3.9000
 Roxygen: list(markdown = TRUE)
 Config/Needs/website: poissonconsulting/poissontemplate
 Config/testthat/edition: 3

@@ -192,3 +192,62 @@ model {
   names(x) <- NULL
   expect_equal(x, coef$estimate)
 })
+
+test_that("analyse with threads_per_chain triggers threaded compilation", {
+  embr::set_analysis_mode("check")
+
+  # Simple model using reduce_sum for within-chain parallelism
+  model <- embr::model(mb_code("
+functions {
+  real partial_sum_lpmf(array[] int y_slice, int start, int end,
+                        vector mu) {
+    return poisson_lpmf(y_slice | exp(mu[start:end]));
+  }
+}
+data {
+  int nObs;
+  array[nObs] int Y;
+  vector[nObs] X;
+  int grainsize;
+}
+parameters {
+  real alpha;
+  real beta;
+}
+model {
+  vector[nObs] mu;
+  alpha ~ normal(0, 10);
+  beta ~ normal(0, 10);
+  for (i in 1:nObs) {
+    mu[i] = alpha + beta * X[i];
+  }
+  target += reduce_sum(partial_sum_lpmf, Y, grainsize, mu);
+}"),
+    select_data = list("Y" = integer(), "X" = numeric())
+  )
+
+  data <- data.frame(
+    Y = rpois(20, lambda = 5),
+    X = rnorm(20)
+  )
+
+  # modify_data adds grainsize
+  model <- embr::update_model(model,
+    modify_data = function(data) {
+      data$grainsize <- 1L
+      data
+    }
+  )
+
+  analysis <- embr::analyse(model, data = data,
+    stan_engine = "cmdstan-mcmc",
+    threads_per_chain = 2L,
+    seed = 42
+  )
+
+  expect_s3_class(analysis, "cmdstan_mcmc_analysis")
+
+  coef <- coef(analysis, simplify = TRUE)
+  expect_true("alpha" %in% coef$term)
+  expect_true("beta" %in% coef$term)
+})

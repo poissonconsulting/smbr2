@@ -42,7 +42,9 @@
 
 \item{niters_warmup}{A count of the number of warmup iterations. The default is to use the same number of iterations as \code{niters}. This is currently only implemented for Stan models.}
 
-\item{...}{Additional arguments passed to \code{\link[cmdstanr:model-method-sample]{cmdstanr::sample()}}.}
+\item{...}{Additional arguments passed to \code{\link[cmdstanr:model-method-sample]{cmdstanr::sample()}}.
+If \code{threads_per_chain} is provided, the model is automatically
+recompiled with threading support (\code{threads = TRUE}).}
 }
 \value{
 A cmdstan_mcmc_analysis object.
