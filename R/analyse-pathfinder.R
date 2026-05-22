@@ -55,7 +55,7 @@ analyse1.cmdstan_pathfinder_model <- function(model, data, loaded, nchains, nite
       init = init,
       draws = niters,
       show_messages = !quiet,
-      show_exceptions = !quiet
+      show_exceptions = getOption("mb.show_exceptions", !quiet)
     ), dots))
   )
   
