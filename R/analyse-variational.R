@@ -53,7 +53,7 @@ analyse1.cmdstan_variational_model <- function(model, data, loaded, nchains, nit
       data = data,
       seed = seed,
       init = init,
-      output_samples = niters,
+      draws = niters,
       show_messages = !quiet,
       show_exceptions = getOption("mb.show_exceptions", !quiet)
     ), dots))
