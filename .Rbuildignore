@@ -13,3 +13,6 @@
 ^LICENSE\.md$
 ^_pkgdown\.yml$
 ^README\.Rmd$
+^\.claude$
+^CLAUDE\.md$
+^pkg\.lock$

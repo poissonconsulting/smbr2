@@ -62,7 +62,7 @@ analyse1.cmdstan_mcmc_model <- function(model, data, loaded, nchains, niters, nt
       seed = seed,
       init = init,
       show_messages = !quiet,
-      show_exceptions = !quiet
+      show_exceptions = getOption("mb.show_exceptions", !quiet)
     ), dots))
   )
   

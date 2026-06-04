@@ -55,7 +55,7 @@ analyse1.cmdstan_laplace_model <- function(model, data, loaded, nchains, niters,
       draws = niters,
       init = init,
       show_messages = !quiet,
-      show_exceptions = !quiet
+      show_exceptions = getOption("mb.show_exceptions", !quiet)
     ), dots))
   )
   

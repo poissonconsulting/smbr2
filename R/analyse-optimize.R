@@ -52,7 +52,7 @@ analyse1.cmdstan_optimize_model <- function(model, data, loaded, nchains, niters
       seed = seed,
       init = init,
       show_messages = !quiet,
-      show_exceptions = !quiet
+      show_exceptions = getOption("mb.show_exceptions", !quiet)
     ), dots))
   )
   
