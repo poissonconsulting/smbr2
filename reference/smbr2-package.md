@@ -3,6 +3,19 @@
 Facilitates Bayesian Analysis using STAN with CmdStanR. This builds on
 smbr, which uses rstan.
 
+## Options
+
+`smbr2` reads the following global options (set via
+[`base::options()`](https://rdrr.io/r/base/options.html), typically in a
+`.Rprofile`):
+
+- `mb.show_exceptions`:
+
+  A flag controlling whether cmdstanr's `show_exceptions` argument is
+  enabled. When unset, defaults to `!quiet`. Set to `FALSE` to suppress
+  the "Chain N Exception: ..." lines that cmdstanr emits even on healthy
+  fits, while keeping the sampling progress visible.
+
 ## See also
 
 Useful links:
