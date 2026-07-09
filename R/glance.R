@@ -16,7 +16,7 @@ generics::glance
 #'   \item{niters}{Number of iterations per chain (post-warmup)}
 #'   \item{nthin}{Thinning interval}
 #'   \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
-#'   \item{num_divergent}{Number of divergent transitions across all chains. 
+#'   \item{num_divergent}{Number of divergent transitions across all chains.
 #'     **Problem indicators**: Any value > 0 indicates sampling issues}
 #'   \item{max_treedepth}{Number of transitions that hit maximum tree depth.
 #'     **Problem indicators**: Values > 0 may indicate inefficient sampling}
@@ -26,11 +26,11 @@ generics::glance
 #'
 #' @details
 #' **Diagnostic interpretation:**
-#' - **Divergent transitions**: Should be 0. Any divergent transitions indicate the 
+#' - **Divergent transitions**: Should be 0. Any divergent transitions indicate the
 #'   sampler had numerical issues and results may be unreliable.
-#' - **Max treedepth**: Should be 0 or very low. High values suggest the sampler 
+#' - **Max treedepth**: Should be 0 or very low. High values suggest the sampler
 #'   is working hard and may benefit from increased `adapt_delta`.
-#' - **E-BFMI**: Should be > 0.2. Values < 0.2 suggest poor adaptation, often 
+#' - **E-BFMI**: Should be > 0.2. Values < 0.2 suggest poor adaptation, often
 #'   requiring longer warmup or model reparameterization.
 #'
 #' @seealso [embr::glance()], [diagnose()]
@@ -65,7 +65,7 @@ glance.cmdstan_mcmc_analysis <- function(x, ...) {
 #'
 #' @details
 #' **Diagnostic interpretation:**
-#' - **return_code**: Should be 0. Non-zero values indicate pathfinder 
+#' - **return_code**: Should be 0. Non-zero values indicate pathfinder
 #'   failed to find a good approximation.
 #'
 #' @seealso [embr::glance()], [diagnose()]
@@ -82,7 +82,7 @@ glance.cmdstan_pathfinder_analysis <- function(x, ...) {
   gl$rhat <- NULL
   gl$return_code <- x$cmdstan_fit$return_codes()
   gl$converged <- gl$return_code == 0
-  
+
   gl
 }
 
@@ -104,7 +104,7 @@ glance.cmdstan_pathfinder_analysis <- function(x, ...) {
 #'
 #' @details
 #' **Diagnostic interpretation:**
-#' - **return_code**: Should be 0. Non-zero values indicate the optimizer 
+#' - **return_code**: Should be 0. Non-zero values indicate the optimizer
 #'   encountered issues (e.g., 1 = max iterations reached, 2 = convergence issues).
 #'
 #' @seealso [embr::glance()]
@@ -121,7 +121,7 @@ glance.cmdstan_optimize_analysis <- function(x, ...) {
   gl$rhat <- NULL
   gl$return_code <- x$cmdstan_fit$return_codes()
   gl$converged <- gl$return_code == 0
-  
+
   gl
 }
 
@@ -143,7 +143,7 @@ glance.cmdstan_optimize_analysis <- function(x, ...) {
 #'
 #' @details
 #' **Diagnostic interpretation:**
-#' - **return_code**: Should be 0. Non-zero values indicate the optimizer 
+#' - **return_code**: Should be 0. Non-zero values indicate the optimizer
 #'   failed to find the posterior mode, invalidating the Laplace approximation.
 #'
 #' @seealso [embr::glance()]
@@ -160,7 +160,7 @@ glance.cmdstan_laplace_analysis <- function(x, ...) {
   gl$rhat <- NULL
   gl$return_code <- x$cmdstan_fit$return_codes()
   gl$converged <- gl$return_code == 0
-  
+
   gl
 }
 
@@ -182,7 +182,7 @@ glance.cmdstan_laplace_analysis <- function(x, ...) {
 #'
 #' @details
 #' **Diagnostic interpretation:**
-#' - **return_code**: Should be 0. Non-zero values indicate the variational 
+#' - **return_code**: Should be 0. Non-zero values indicate the variational
 #'   algorithm failed to converge to a stable ELBO (Evidence Lower BOund).
 #'
 #' @seealso [embr::glance()], [diagnose()]
@@ -199,6 +199,6 @@ glance.cmdstan_variational_analysis <- function(x, ...) {
   gl$rhat <- NULL
   gl$return_code <- x$cmdstan_fit$return_codes()
   gl$converged <- gl$return_code == 0
-  
+
   gl
 }

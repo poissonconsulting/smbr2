@@ -16,3 +16,5 @@
 ^\.claude$
 ^CLAUDE\.md$
 ^pkg\.lock$
+^[.]?air[.]toml$
+^\.vscode$

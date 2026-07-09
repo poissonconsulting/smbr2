@@ -1,7 +1,7 @@
 #' Analyse CmdStanR Laplace Model
 #'
 #' Internal method for analysing models using CmdStanR's Laplace approximation.
-#' This method is dispatched when `stan_engine = "cmdstan-laplace"` in 
+#' This method is dispatched when `stan_engine = "cmdstan-laplace"` in
 #' [embr::analyse.mb_model()].
 #'
 #' @param model A mb_model to analyse.
@@ -12,65 +12,94 @@
 #' @return A cmdstan_laplace_analysis object.
 #' @keywords internal
 #' @export
-analyse1.cmdstan_laplace_model <- function(model, data, loaded, nchains, niters, nthin, 
-                                           quiet, glance, parallel, 
-                                           seed, niters_warmup,
-                                           ...) {
-  conflicting_args <- c("data", "mode", "show_messages", "show_exceptions", "draws")
-  
+analyse1.cmdstan_laplace_model <- function(
+  model,
+  data,
+  loaded,
+  nchains,
+  niters,
+  nthin,
+  quiet,
+  glance,
+  parallel,
+  seed,
+  niters_warmup,
+  ...
+) {
+  conflicting_args <- c(
+    "data",
+    "mode",
+    "show_messages",
+    "show_exceptions",
+    "draws"
+  )
+
   dots <- list(...)
   conflicts <- intersect(names(dots), conflicting_args)
   if (length(conflicts) > 0) {
     dots[conflicts] <- NULL
-    warning("Ignoring arguments passed via '...' that conflict with function parameters: ", 
-            paste(conflicts, collapse = ", "))
+    warning(
+      "Ignoring arguments passed via '...' that conflict with function parameters: ",
+      paste(conflicts, collapse = ", ")
+    )
   }
-  
+
   timer <- timer::Timer$new()
   timer$start()
-  
+
   obj <- list(model = model, data = data)
-  
+
   data %<>% modify_data(model = model, numericize_factors = TRUE)
-  
+
   monitor <- embr::monitor(model)
-  
+
   # allow init to be passed via '...' - all parameters must be specified
-  if("init" %in% names(dots)){
+  if ("init" %in% names(dots)) {
     init <- dots$init
     dots$init <- NULL
   } else {
     init <- NULL
   }
-  
-  capture_output <- if (quiet) function(x){
-    suppressMessages(suppressWarnings(capture.output(x))) 
-  }  else {
+
+  capture_output <- if (quiet) {
+    function(x) {
+      suppressMessages(suppressWarnings(capture.output(x)))
+    }
+  } else {
     identity
-  } 
+  }
   capture_output(
-    cmdstan_fit <- do.call(loaded$laplace, c(list(
-      data = data,
-      seed = seed,
-      draws = niters,
-      init = init,
-      show_messages = !quiet,
-      show_exceptions = getOption("mb.show_exceptions", !quiet)
-    ), dots))
+    cmdstan_fit <- do.call(
+      loaded$laplace,
+      c(
+        list(
+          data = data,
+          seed = seed,
+          draws = niters,
+          init = init,
+          show_messages = !quiet,
+          show_exceptions = getOption("mb.show_exceptions", !quiet)
+        ),
+        dots
+      )
+    )
   )
-  
+
   draws <- cmdstan_fit$draws(variables = monitor, format = "array")
-  
-  obj %<>% c(
-    cmdstan_fit = list(cmdstan_fit),
-    mcmcr = list(as.mcmcr(draws)),
-    nthin = nthin
-  )
-  
+
+  obj %<>%
+    c(
+      cmdstan_fit = list(cmdstan_fit),
+      mcmcr = list(as.mcmcr(draws)),
+      nthin = nthin
+    )
+
   obj$duration <- timer$elapsed()
   class(obj) <- c("cmdstan_laplace_analysis", "cmdstan_analysis", "mb_analysis")
-  
-  if (glance) print(glance(obj))
-  
+
+  if (glance) {
+    print(glance(obj))
+  }
+
   obj
 }

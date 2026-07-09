@@ -1,8 +1,9 @@
 test_that("analyse", {
   embr::set_analysis_mode("check")
-  
+
   # define model in Stan language
-  model <- embr::model(mb_code("
+  model <- embr::model(mb_code(
+    "
 data {
   int nAnnual;
   int nObs;
@@ -38,29 +39,35 @@ model {
   }
   
   Pairs ~ poisson(ePairs);
-}"))
-  
+}"
+  ))
+
   # add R code to calculate derived parameters
-  model <- embr::update_model(model, new_expr = "
+  model <- embr::update_model(
+    model,
+    new_expr = "
   for (i in 1:length(Pairs)) {
     prediction[i] <- exp(alpha + beta1 * Year[i] + beta2 * Year[i]^2 +
                        beta3 * Year[i]^3 + bAnnual[Annual[i]])
   }
-    log_lik <- dpois(Pairs, prediction, log = TRUE)")
-  
-  # define data types and center year
-  model <- embr::update_model(model,
-                              select_data = list(
-                                "Pairs" = integer(), "Year*" = integer(),
-                                Annual = factor()
-                              ),
-                              derived = "sAnnual",
-                              random_effects = list(bAnnual = "Annual"),
-                              gen_inits = function(data) {
-                                list(log_sAnnual = 20)
-                              }
+    log_lik <- dpois(Pairs, prediction, log = TRUE)"
   )
-  
+
+  # define data types and center year
+  model <- embr::update_model(
+    model,
+    select_data = list(
+      "Pairs" = integer(),
+      "Year*" = integer(),
+      Annual = factor()
+    ),
+    derived = "sAnnual",
+    random_effects = list(bAnnual = "Annual"),
+    gen_inits = function(data) {
+      list(log_sAnnual = 20)
+    }
+  )
+
   expect_identical(
     pars(model, "fixed"),
     c("alpha", "beta1", "beta2", "beta3", "log_sAnnual")
@@ -71,36 +78,53 @@ model {
     c("alpha", "bAnnual", "beta1", "beta2", "beta3", "log_sAnnual")
   )
   expect_identical(pars(model, "derived"), "sAnnual")
-  
+
   expect_identical(
     pars(model, "all"),
     c("alpha", "bAnnual", "beta1", "beta2", "beta3", "log_sAnnual", "sAnnual")
   )
-  
+
   expect_identical(
     pars(code(model), "all"),
-    c("alpha", "bAnnual", "beta1", "beta2", "beta3", "eAnnual", "log_sAnnual", "sAnnual")
+    c(
+      "alpha",
+      "bAnnual",
+      "beta1",
+      "beta2",
+      "beta3",
+      "eAnnual",
+      "log_sAnnual",
+      "sAnnual"
+    )
   )
-  
+
   expect_identical(pars(model), pars(model, "all"))
-  
+
   data <- bauw::peregrine
   data$Annual <- factor(data$Year)
-  
+
   seed <- 34
-  analysis <- embr::analyse(model, data = data, stan_engine = "cmdstan-mcmc", seed = seed)
-  
-  expect_identical(class(analysis), c("cmdstan_mcmc_analysis", "cmdstan_analysis", "mb_analysis"))
+  analysis <- embr::analyse(
+    model,
+    data = data,
+    stan_engine = "cmdstan-mcmc",
+    seed = seed
+  )
+
+  expect_identical(
+    class(analysis),
+    c("cmdstan_mcmc_analysis", "cmdstan_analysis", "mb_analysis")
+  )
   expect_true(is.cmdstan_analysis(analysis))
-  
+
   expect_identical(universals::niters(analysis), 500L)
   expect_identical(universals::nchains(analysis), 2L)
   expect_identical(universals::nsims(analysis), 1000L)
   expect_identical(embr::ngens(analysis), 2000L)
-  
+
   expect_identical(niters(analysis), 500L)
   expect_identical(ngens(analysis), 2000L)
-  
+
   expect_identical(pars(analysis, "fixed"), pars(model, "fixed"))
   expect_identical(pars(analysis, "random"), pars(model, "random"))
   expect_identical(pars(analysis, "all"), pars(model, "all"))
@@ -108,44 +132,53 @@ model {
   expect_identical(pars(analysis, "primary"), pars(model, "primary"))
   expect_identical(pars(analysis, "derived"), pars(model, "derived"))
   expect_identical(pars(analysis, "random"), "bAnnual")
-  
+
   expect_s3_class(as.mcmcr(analysis), "mcmcr")
-  
+
   expect_identical(universals::niters(analysis), 500L)
   expect_identical(universals::nchains(analysis), 2L)
   expect_identical(universals::nsims(analysis), 1000L)
   expect_identical(embr::ngens(analysis), 2000L)
-  
+
   monitor <- analysis$cmdstan_fit$summary()
   rhat <- rhat(analysis, by = "term", as_df = TRUE)
-  
+
   rhat_stan <- data.frame(
     term = as.term(monitor$variable),
     rhat = round(monitor[, "rhat"], 3)
   )
   rhat_stan <- rhat_stan[!(rhat_stan$term %in% c("lp__", "eAnnual")), ]
   expect_identical(sort(rhat$term), sort(rhat_stan$term))
-  
+
   glance <- glance(analysis)
   expect_s3_class(glance, "tbl")
   expect_identical(glance$n, 40L)
   expect_identical(glance$K, 5L)
   expect_identical(glance$nthin, 1L)
-  
+
   expect_identical(
     colnames(glance),
     c(
-      "n", "K", "nchains", "niters", "nthin", "ess", "rhat",
-      "converged", "num_divergent", "max_treedepth", "ebfmi"
+      "n",
+      "K",
+      "nchains",
+      "niters",
+      "nthin",
+      "ess",
+      "rhat",
+      "converged",
+      "num_divergent",
+      "max_treedepth",
+      "ebfmi"
     )
   )
-  
+
   waic <- IC(analysis)
   expect_gt(waic, 305)
   expect_lt(waic, 315)
-  
+
   coef <- coef(analysis, simplify = TRUE)
-  
+
   expect_s3_class(coef, "tbl")
   expect_s3_class(coef, "mb_analysis_coef")
   expect_identical(
@@ -165,29 +198,44 @@ model {
     sort(
       as.term(
         c(
-          "alpha", paste0("bAnnual[", 1:40, "]"), "beta1", "beta2", "beta3",
-          "log_sAnnual", "sAnnual"
+          "alpha",
+          paste0("bAnnual[", 1:40, "]"),
+          "beta1",
+          "beta2",
+          "beta3",
+          "log_sAnnual",
+          "sAnnual"
         )
       )
     )
   )
-  
+
   tidy <- tidy(analysis)
   expect_identical(
     colnames(tidy),
     c("term", "estimate", "lower", "upper", "esr", "rhat")
   )
-  
+
   year <- predict(analysis, new_data = "Year")
-  
+
   expect_s3_class(year, "tbl")
-  expect_identical(colnames(year), c(
-    "Year", "Pairs", "R.Pairs", "Eyasses", "Annual",
-    "estimate", "lower", "upper", "svalue"
-  ))
+  expect_identical(
+    colnames(year),
+    c(
+      "Year",
+      "Pairs",
+      "R.Pairs",
+      "Eyasses",
+      "Annual",
+      "estimate",
+      "lower",
+      "upper",
+      "svalue"
+    )
+  )
   expect_true(all(year$estimate > year$lower))
   expect_true(all(year$estimate < year$upper))
-  
+
   x <- unlist(estimates(analysis))
   names(x) <- NULL
   expect_equal(x, coef$estimate)
