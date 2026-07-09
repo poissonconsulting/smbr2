@@ -3,7 +3,7 @@
 Internal method for analysing models using CmdStanR's Laplace
 approximation. This method is dispatched when
 `stan_engine = "cmdstan-laplace"` in
-[`embr::analyse.mb_model()`](https://rdrr.io/pkg/embr/man/analyse.mb_model.html).
+[`embr::analyse.mb_model()`](https://rdrr.io/pkg/embr/man/analyse.html).
 
 ## Usage
 
