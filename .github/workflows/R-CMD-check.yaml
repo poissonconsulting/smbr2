@@ -12,6 +12,7 @@ jobs:
     with:
       tier: important
       jags: false
+      cmdstan: true
       tex: false
       private: false
     secrets: inherit

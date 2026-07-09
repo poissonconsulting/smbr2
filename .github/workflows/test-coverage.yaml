@@ -10,6 +10,7 @@ jobs:
   test-coverage:
     uses: poissonconsulting/.github/.github/workflows/test-coverage.yaml@v1
     with:
+      cmdstan: true
       tex: false
       private: false
     secrets: inherit
