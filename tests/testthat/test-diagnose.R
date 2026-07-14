@@ -1,8 +1,10 @@
 test_that("diagnose.cmdstan_mcmc_analysis works", {
   embr::set_analysis_mode("check")
-  
+
   # define model in Stan language
-  model <- embr::model(mb_code("
+  model <- embr::model(
+    mb_code(
+      "
 data {
   int nAnnual;
   int nObs;
@@ -38,29 +40,56 @@ model {
   }
   
   Pairs ~ poisson(ePairs);
-}"), select_data = list(
-  "Pairs" = integer(), "Year*" = integer(),
-  Annual = factor()
-))
+}"
+    ),
+    select_data = list(
+      "Pairs" = integer(),
+      "Year*" = integer(),
+      Annual = factor()
+    )
+  )
 
   data <- bauw::peregrine
   data$Annual <- factor(data$Year)
-  
+
   seed <- 34
-  analysis_mcmc <- embr::analyse(model, data = data, stan_engine = "cmdstan-mcmc", seed = seed)
-  analysis_pathfinder <- embr::analyse(model, data = data, stan_engine = "cmdstan-pathfinder", seed = seed)
-  analysis_variational <- embr::analyse(model, data = data, stan_engine = "cmdstan-variational", seed = seed)
+  analysis_mcmc <- embr::analyse(
+    model,
+    data = data,
+    stan_engine = "cmdstan-mcmc",
+    seed = seed
+  )
+  analysis_pathfinder <- embr::analyse(
+    model,
+    data = data,
+    stan_engine = "cmdstan-pathfinder",
+    seed = seed
+  )
+  analysis_variational <- embr::analyse(
+    model,
+    data = data,
+    stan_engine = "cmdstan-variational",
+    seed = seed
+  )
 
   diagnostics <- diagnose(analysis_mcmc)
   expect_s3_class(diagnostics, "cmdstan_diagnostics")
-  expect_identical(names(diagnostics), c("status", "stdout", "stderr", "timeout"))
+  expect_identical(
+    names(diagnostics),
+    c("status", "stdout", "stderr", "timeout")
+  )
 
   diagnostics <- diagnose(analysis_pathfinder)
   expect_s3_class(diagnostics, "cmdstan_diagnostics")
-  expect_identical(names(diagnostics), c("status", "stdout", "stderr", "timeout"))
-  
+  expect_identical(
+    names(diagnostics),
+    c("status", "stdout", "stderr", "timeout")
+  )
+
   diagnostics <- diagnose(analysis_variational)
   expect_s3_class(diagnostics, "cmdstan_diagnostics")
-  expect_identical(names(diagnostics), c("status", "stdout", "stderr", "timeout"))
-  
+  expect_identical(
+    names(diagnostics),
+    c("status", "stdout", "stderr", "timeout")
+  )
 })

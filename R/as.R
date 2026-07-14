@@ -11,15 +11,17 @@ as.mcmcr.draws_array <- function(x, ...) {
 
 # modified from cmdstanr::as_mcmc.list so that monitor can be fed to draws() function beforehand
 # https://github.com/stan-dev/cmdstanr/blob/master/R/utils.R
-# function expects a draws_array class object 
-as_mcmc_list <- function(x){
+# function expects a draws_array class object
+as_mcmc_list <- function(x) {
   n_chain <- dim(x)[2]
   n_iteration <- dim(x)[1]
   class(x) <- 'array'
   mcmc_list <- lapply(seq_len(n_chain), function(chain) {
     x <- x[, chain, ]
-    dimnames(x) <- list(iteration = dimnames(x)$iteration,
-                        variable  = dimnames(x)$variable)
+    dimnames(x) <- list(
+      iteration = dimnames(x)$iteration,
+      variable = dimnames(x)$variable
+    )
     attr(x, 'mcpar') <- c(1, n_iteration, 1)
     class(x) <- 'mcmc'
     x

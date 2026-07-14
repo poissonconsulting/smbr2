@@ -2,10 +2,10 @@
 #'
 #' @description
 #' Generic function for diagnosing analysis objects.
-#' 
+#'
 #' See documentation for specific methods:
 #' * [diagnose.cmdstan_mcmc_analysis()]
-#' 
+#'
 #' @param x An analysis object.
 #' @param ... Additional arguments passed to methods.
 #'
@@ -18,9 +18,9 @@ diagnose <- function(x, ...) {
 #' Diagnose CmdStan MCMC Analysis
 #'
 #' @description
-#' Provides diagnostic information for CmdStan MCMC analysis objects. 
-#' 
-#' For more details on diagnostics and how to address issues see: 
+#' Provides diagnostic information for CmdStan MCMC analysis objects.
+#'
+#' For more details on diagnostics and how to address issues see:
 #' * https://mc-stan.org/docs/cmdstan-guide/diagnose.html
 #'
 #' @param x A cmdstan_mcmc_analysis object.
@@ -31,7 +31,7 @@ diagnose <- function(x, ...) {
 diagnose.cmdstan_mcmc_analysis <- function(x, ...) {
   chk_unused(...)
   chk::chk_s3_class(x$cmdstan_fit, "CmdStanMCMC")
-  
+
   x <- capture.output(y <- x$cmdstan_fit$cmdstan_diagnose())
   class(y) <- c("cmdstan_diagnostics", class(y))
   y
@@ -41,8 +41,8 @@ diagnose.cmdstan_mcmc_analysis <- function(x, ...) {
 #'
 #' @description
 #' Provides diagnostic information for CmdStan Variational analysis objects.
-#' 
-#' For more details on diagnostics and how to address issues see: 
+#'
+#' For more details on diagnostics and how to address issues see:
 #' * https://mc-stan.org/docs/cmdstan-guide/diagnose.html
 #'
 #' @param x A cmdstan_variational_analysis object.
@@ -53,7 +53,7 @@ diagnose.cmdstan_mcmc_analysis <- function(x, ...) {
 diagnose.cmdstan_variational_analysis <- function(x, ...) {
   chk_unused(...)
   chk::chk_s3_class(x$cmdstan_fit, "CmdStanVB")
-  
+
   x <- capture.output(y <- x$cmdstan_fit$cmdstan_diagnose())
   class(y) <- c("cmdstan_diagnostics", class(y))
   y
@@ -63,8 +63,8 @@ diagnose.cmdstan_variational_analysis <- function(x, ...) {
 #'
 #' @description
 #' Provides diagnostic information for CmdStan Pathfinder analysis objects.
-#' 
-#' For more details on diagnostics and how to address issues see: 
+#'
+#' For more details on diagnostics and how to address issues see:
 #' * https://mc-stan.org/docs/cmdstan-guide/diagnose.html
 #'
 #' @param x A cmdstan_pathfinder_analysis object.
@@ -75,7 +75,7 @@ diagnose.cmdstan_variational_analysis <- function(x, ...) {
 diagnose.cmdstan_pathfinder_analysis <- function(x, ...) {
   chk_unused(...)
   chk::chk_s3_class(x$cmdstan_fit, "CmdStanPathfinder")
-  
+
   x <- capture.output(y <- x$cmdstan_fit$cmdstan_diagnose())
   class(y) <- c("cmdstan_diagnostics", class(y))
   y
