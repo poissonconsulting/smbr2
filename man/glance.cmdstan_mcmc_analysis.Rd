@@ -22,8 +22,12 @@ A tibble with one row containing:
 \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
 \item{num_divergent}{Number of divergent transitions across all chains.
 \strong{Problem indicators}: Any value > 0 indicates sampling issues}
+\item{perc_divergent}{Percentage of divergent transitions across all chains.
+\strong{Problem indicators}: Any value > 0\% indicates sampling issues}
 \item{max_treedepth}{Number of transitions that hit maximum tree depth.
 \strong{Problem indicators}: Values > 0 may indicate inefficient sampling}
+\item{perc_max_treedepth}{Percentage of transitions that hit maximum tree depth.
+\strong{Problem indicators}: Values > 0\% may indicate inefficient sampling}
 \item{ebfmi}{Minimum Energy Bayesian Fraction of Missing Information across chains.
 \strong{Problem indicators}: Values < 0.2 indicate poor adaptation/warmup}
 }
@@ -37,7 +41,8 @@ Provides a one-row summary of key diagnostics for MCMC analysis results.
 \item \strong{Divergent transitions}: Should be 0. Any divergent transitions indicate the
 sampler had numerical issues and results may be unreliable.
 \item \strong{Max treedepth}: Should be 0 or very low. High values suggest the sampler
-is working hard and may benefit from increased \code{adapt_delta}.
+is working hard and may benefit from increased \code{adapt_delta} or
+reparameterization.
 \item \strong{E-BFMI}: Should be > 0.2. Values < 0.2 suggest poor adaptation, often
 requiring longer warmup or model reparameterization.
 }
