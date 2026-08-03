@@ -42,7 +42,7 @@
 
 \item{niters_warmup}{A count of the number of warmup iterations. The default is to use the same number of iterations as \code{niters}. This is currently only implemented for Stan models.}
 
-\item{...}{Additional arguments passed to \code{\link[cmdstanr:model-method-optimize]{cmdstanr::optimize()}}.}
+\item{...}{Additional arguments passed to \code{\link[cmdstanr:optimize]{cmdstanr::optimize()}}.}
 }
 \value{
 A cmdstan_optimize_analysis object.

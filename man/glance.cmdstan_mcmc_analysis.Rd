@@ -43,5 +43,5 @@ requiring longer warmup or model reparameterization.
 }
 }
 \seealso{
-\code{\link[embr:reexports]{embr::glance()}}, \code{\link[=diagnose]{diagnose()}}
+\code{\link[embr:glance]{embr::glance()}}, \code{\link[=diagnose]{diagnose()}}
 }

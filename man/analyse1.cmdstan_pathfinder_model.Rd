@@ -42,7 +42,7 @@
 
 \item{niters_warmup}{A count of the number of warmup iterations. The default is to use the same number of iterations as \code{niters}. This is currently only implemented for Stan models.}
 
-\item{...}{Additional arguments passed to \code{\link[cmdstanr:model-method-pathfinder]{cmdstanr::pathfinder()}}.}
+\item{...}{Additional arguments passed to \code{\link[cmdstanr:pathfinder]{cmdstanr::pathfinder()}}.}
 }
 \value{
 A cmdstan_pathfinder_analysis object.
