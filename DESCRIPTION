@@ -42,7 +42,7 @@ Remotes:
     poissonconsulting/timer,
     stan-dev/cmdstanr
 Encoding: UTF-8
-RoxygenNote: 7.3.3.9000
 Roxygen: list(markdown = TRUE)
 Config/Needs/website: poissonconsulting/poissontemplate
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0.9000
