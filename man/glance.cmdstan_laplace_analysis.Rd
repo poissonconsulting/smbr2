@@ -32,5 +32,5 @@ failed to find the posterior mode, invalidating the Laplace approximation.
 }
 }
 \seealso{
-\code{\link[embr:reexports]{embr::glance()}}
+\code{\link[embr:glance]{embr::glance()}}
 }

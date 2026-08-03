@@ -32,5 +32,5 @@ encountered issues (e.g., 1 = max iterations reached, 2 = convergence issues).
 }
 }
 \seealso{
-\code{\link[embr:reexports]{embr::glance()}}
+\code{\link[embr:glance]{embr::glance()}}
 }

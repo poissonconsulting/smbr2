@@ -13,8 +13,8 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{generics}{\code{\link[generics]{glance}}}
+  \item{generics}{\code{\link[generics:glance]{glance()}}}
 
-  \item{smbr}{\code{\link[smbr]{is.smb_code}}, \code{\link[smbr]{is.smb_model}}}
+  \item{smbr}{\code{\link[smbr:is.smb_code]{is.smb_code()}}, \code{\link[smbr:is.smb_model]{is.smb_model()}}}
 }}
 
