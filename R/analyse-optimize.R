@@ -54,9 +54,7 @@ analyse1.cmdstan_optimize_model <- function(
   }
 
   capture_output <- if (quiet) {
-    function(x) {
-      suppressMessages(suppressWarnings(capture.output(x)))
-    }
+    quiet_capture
   } else {
     identity
   }

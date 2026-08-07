@@ -62,13 +62,11 @@ analyse1.cmdstan_laplace_model <- function(
   }
 
   capture_output <- if (quiet) {
-    function(x) {
-      suppressMessages(suppressWarnings(capture.output(x)))
-    }
+    quiet_capture
   } else {
     identity
   }
-  capture_output(
+  capture_output({
     cmdstan_fit <- do.call(
       loaded$laplace,
       c(
@@ -83,9 +81,9 @@ analyse1.cmdstan_laplace_model <- function(
         dots
       )
     )
-  )
 
-  draws <- cmdstan_fit$draws(variables = monitor, format = "array")
+    draws <- cmdstan_fit$draws(variables = monitor, format = "array")
+  })
 
   obj %<>%
     c(

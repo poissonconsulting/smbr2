@@ -32,5 +32,5 @@ failed to find a good approximation.
 }
 }
 \seealso{
-\code{\link[embr:reexports]{embr::glance()}}, \code{\link[=diagnose]{diagnose()}}
+\code{\link[embr:glance]{embr::glance()}}, \code{\link[=diagnose]{diagnose()}}
 }

@@ -42,7 +42,7 @@
 
 \item{niters_warmup}{A count of the number of warmup iterations. The default is to use the same number of iterations as \code{niters}. This is currently only implemented for Stan models.}
 
-\item{...}{Additional arguments passed to \code{\link[cmdstanr:model-method-laplace]{cmdstanr::laplace()}}.}
+\item{...}{Additional arguments passed to \code{\link[cmdstanr:laplace]{cmdstanr::laplace()}}.}
 }
 \value{
 A cmdstan_laplace_analysis object.

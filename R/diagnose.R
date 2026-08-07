@@ -30,7 +30,7 @@ diagnose <- function(x, ...) {
 #' @export
 diagnose.cmdstan_mcmc_analysis <- function(x, ...) {
   chk_unused(...)
-  chk::chk_s3_class(x$cmdstan_fit, "CmdStanMCMC")
+  chk::chk_is(x$cmdstan_fit, "CmdStanMCMC")
 
   x <- capture.output(y <- x$cmdstan_fit$cmdstan_diagnose())
   class(y) <- c("cmdstan_diagnostics", class(y))
@@ -52,7 +52,7 @@ diagnose.cmdstan_mcmc_analysis <- function(x, ...) {
 #' @export
 diagnose.cmdstan_variational_analysis <- function(x, ...) {
   chk_unused(...)
-  chk::chk_s3_class(x$cmdstan_fit, "CmdStanVB")
+  chk::chk_is(x$cmdstan_fit, "CmdStanVB")
 
   x <- capture.output(y <- x$cmdstan_fit$cmdstan_diagnose())
   class(y) <- c("cmdstan_diagnostics", class(y))
@@ -74,7 +74,7 @@ diagnose.cmdstan_variational_analysis <- function(x, ...) {
 #' @export
 diagnose.cmdstan_pathfinder_analysis <- function(x, ...) {
   chk_unused(...)
-  chk::chk_s3_class(x$cmdstan_fit, "CmdStanPathfinder")
+  chk::chk_is(x$cmdstan_fit, "CmdStanPathfinder")
 
   x <- capture.output(y <- x$cmdstan_fit$cmdstan_diagnose())
   class(y) <- c("cmdstan_diagnostics", class(y))

@@ -66,13 +66,11 @@ analyse1.cmdstan_mcmc_model <- function(
   parallel_chains <- ifelse(parallel, nchains, 1L)
 
   capture_output <- if (quiet) {
-    function(x) {
-      suppressMessages(suppressWarnings(capture.output(x)))
-    }
+    quiet_capture
   } else {
     identity
   }
-  capture_output(
+  capture_output({
     cmdstan_fit <- do.call(
       loaded$sample,
       c(
@@ -92,9 +90,9 @@ analyse1.cmdstan_mcmc_model <- function(
         dots
       )
     )
-  )
 
-  draws <- cmdstan_fit$draws(variables = monitor, format = "array")
+    draws <- cmdstan_fit$draws(variables = monitor, format = "array")
+  })
 
   obj %<>%
     c(

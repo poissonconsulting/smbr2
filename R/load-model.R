@@ -3,9 +3,7 @@ load_model.cmdstan_model <- function(x, quiet, ...) {
   chk_flag(quiet)
 
   capture_output <- if (quiet) {
-    function(x) {
-      suppressMessages(suppressWarnings(capture.output(x)))
-    }
+    quiet_capture
   } else {
     identity
   }
