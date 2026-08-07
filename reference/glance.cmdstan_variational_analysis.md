@@ -49,5 +49,5 @@ A tibble with one row containing:
 
 ## See also
 
-[`embr::glance()`](https://rdrr.io/pkg/embr/man/reexports.html),
+[`embr::glance()`](https://generics.r-lib.org/reference/glance.html),
 [`diagnose()`](https://poissonconsulting.github.io/smbr/reference/diagnose.md)

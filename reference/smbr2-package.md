@@ -28,3 +28,8 @@ Useful links:
 
 **Maintainer**: Seb Dalgarno <seb@poissonconsulting.ca>
 ([ORCID](https://orcid.org/0000-0002-3658-4517))
+
+Authors:
+
+- Seb Dalgarno <seb@poissonconsulting.ca>
+  ([ORCID](https://orcid.org/0000-0002-3658-4517))
