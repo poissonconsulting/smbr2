@@ -241,3 +241,112 @@ model {
   names(x) <- NULL
   expect_equal(x, coef$estimate)
 })
+
+test_that("glance calculates divergent transitions correctly", {
+  # a stub in place of the parent glance method so the test does not
+  # require a fitted model
+  local_mocked_s3_method(
+    "glance",
+    "stub_analysis",
+    function(x, ...) data.frame(nchains = 4L, niters = 250L)
+  )
+
+  stub_analysis <- function(num_divergent, num_max_treedepth) {
+    diag_summary <- list(
+      num_divergent = num_divergent,
+      num_max_treedepth = num_max_treedepth,
+      ebfmi = rep(1, length(num_divergent))
+    )
+    structure(
+      list(cmdstan_fit = list(diagnostic_summary = function() diag_summary)),
+      class = c("cmdstan_mcmc_analysis", "stub_analysis")
+    )
+  }
+
+  # 4 chains of 250 iterations = 1000 transitions
+  glance <- glance(stub_analysis(c(3, 7, 0, 10), c(2, 0, 0, 3)))
+
+  expect_identical(glance$perc_divergent, 2)
+  expect_identical(glance$max_treedepth, 5)
+  expect_identical(glance$perc_max_treedepth, 0.5)
+
+  # no divergent transitions or max treedepth hits
+  glance <- glance(stub_analysis(c(0, 0, 0, 0), c(0, 0, 0, 0)))
+
+  expect_identical(glance$perc_divergent, 0)
+  expect_identical(glance$max_treedepth, 0)
+  expect_identical(glance$perc_max_treedepth, 0)
+
+  # every transition divergent
+  glance <- glance(stub_analysis(rep(250, 4), rep(250, 4)))
+
+  expect_identical(glance$perc_divergent, 100)
+  expect_identical(glance$max_treedepth, 1000)
+  expect_identical(glance$perc_max_treedepth, 100)
+})
+
+test_that("glance reports divergent transitions for a funnel model", {
+  embr::set_analysis_mode("check")
+
+  # Neal's funnel in its centered parameterization: the group effects collapse
+  # towards zero as sGroup shrinks, creating a neck the sampler cannot explore
+  # without diverging. The vague prior on log_sGroup and the weak likelihood
+  # (large observation sd, two observations per group) leave the funnel almost
+  # entirely unconstrained by the data.
+  model <- embr::model(
+    mb_code(
+      "
+data {
+  int nObs;
+  int nGroup;
+  array[nObs] int Group;
+  array[nObs] real y;
+}
+parameters {
+  real log_sGroup;
+  vector[nGroup] bGroup;
+}
+transformed parameters {
+  real sGroup;
+  sGroup = exp(log_sGroup);
+}
+model {
+  log_sGroup ~ normal(0, 10);
+  bGroup ~ normal(0, sGroup);
+  for (i in 1:nObs) {
+    y[i] ~ normal(bGroup[Group[i]], 10);
+  }
+}"
+    ),
+    select_data = list("y" = numeric(), Group = factor()),
+    random_effects = list(bGroup = "Group"),
+    # start the chains high up the funnel, where the step size adapts to the
+    # wide part of the posterior and then fails in the neck
+    gen_inits = function(data) {
+      list(log_sGroup = 10)
+    }
+  )
+
+  data <- data.frame(
+    y = c(-1, 1, -0.5, 0.5, -2, 2, 0, 0, -1.5, 1.5, -0.2, 0.2, -3, 3, -1, 1),
+    Group = factor(rep(1:8, each = 2))
+  )
+
+  analysis <- embr::analyse(
+    model,
+    data = data,
+    stan_engine = "cmdstan-mcmc",
+    seed = 42,
+    # a permissive target acceptance rate leaves the step size far too large
+    # for the neck of the funnel, making divergences all but certain
+    adapt_delta = 0.5
+  )
+
+  glance <- glance(analysis)
+
+  expect_gt(glance$perc_divergent, 0)
+  expect_identical(
+    glance$perc_divergent,
+    mean(analysis$cmdstan_fit$diagnostic_summary()$num_divergent) / glance$niters * 100
+  )
+})
