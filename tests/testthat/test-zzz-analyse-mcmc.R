@@ -168,7 +168,6 @@ model {
       "rhat",
       "converged",
       "perc_divergent",
-      "max_treedepth",
       "perc_max_treedepth",
       "ebfmi"
     )
@@ -269,7 +268,6 @@ test_that("glance calculates divergent transitions correctly", {
   glance <- glance(stub_analysis(c(3, 7, 0, 10), c(2, 0, 0, 3), TRUE))
 
   expect_identical(glance$perc_divergent, 2)
-  expect_identical(glance$max_treedepth, 5)
   expect_identical(glance$perc_max_treedepth, 0.5)
   expect_identical(glance$converged, FALSE) # based on divergences alone
 
@@ -277,7 +275,6 @@ test_that("glance calculates divergent transitions correctly", {
   glance <- glance(stub_analysis(c(0, 0, 0, 0), c(0, 0, 0, 0), TRUE))
 
   expect_identical(glance$perc_divergent, 0)
-  expect_identical(glance$max_treedepth, 0)
   expect_identical(glance$perc_max_treedepth, 0)
   expect_identical(glance$converged, TRUE)
   
@@ -285,7 +282,6 @@ test_that("glance calculates divergent transitions correctly", {
   glance <- glance(stub_analysis(rep(250, 4), rep(250, 4), TRUE))
 
   expect_identical(glance$perc_divergent, 100)
-  expect_identical(glance$max_treedepth, 1000)
   expect_identical(glance$perc_max_treedepth, 100)
   expect_identical(glance$converged, FALSE)
   

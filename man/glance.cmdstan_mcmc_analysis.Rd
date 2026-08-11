@@ -22,8 +22,6 @@ A tibble with one row containing:
 \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
 \item{perc_divergent}{Percentage of divergent transitions across all chains.
 \strong{Problem indicators}: Any value > 0\% indicates sampling issues}
-\item{max_treedepth}{Number of transitions that hit maximum tree depth.
-\strong{Problem indicators}: Values > 0 may indicate inefficient sampling}
 \item{perc_max_treedepth}{Percentage of transitions that hit maximum tree depth.
 \strong{Problem indicators}: Values > 0\% may indicate inefficient sampling}
 \item{ebfmi}{Minimum Energy Bayesian Fraction of Missing Information across chains.

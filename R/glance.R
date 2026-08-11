@@ -18,8 +18,6 @@ generics::glance
 #'   \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
 #'   \item{perc_divergent}{Percentage of divergent transitions across all chains.
 #'     **Problem indicators**: Any value > 0% indicates sampling issues}
-#'   \item{max_treedepth}{Number of transitions that hit maximum tree depth.
-#'     **Problem indicators**: Values > 0 may indicate inefficient sampling}
 #'   \item{perc_max_treedepth}{Percentage of transitions that hit maximum tree depth.
 #'     **Problem indicators**: Values > 0% may indicate inefficient sampling}
 #'   \item{ebfmi}{Minimum Energy Bayesian Fraction of Missing Information across chains.
@@ -44,8 +42,7 @@ glance.cmdstan_mcmc_analysis <- function(x, ...) {
   gl <- glance(x2, ...)
   diag_summary <- x$cmdstan_fit$diagnostic_summary()
   gl$perc_divergent <- sum(diag_summary$num_divergent) / gl$niters / gl$nchains * 100
-  gl$max_treedepth <- sum(diag_summary$num_max_treedepth)
-  gl$perc_max_treedepth <- gl$max_treedepth / gl$niters / gl$nchains * 100
+  gl$perc_max_treedepth <- sum(diag_summary$num_max_treedepth) / gl$niters / gl$nchains * 100
   gl$ebfmi <- signif(min(diag_summary$ebfmi), digits = 3)
   gl$converged <- gl$converged & (gl$perc_divergent < 0.2)
 
