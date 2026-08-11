@@ -20,8 +20,6 @@ A tibble with one row containing:
 \item{niters}{Number of iterations per chain (post-warmup)}
 \item{nthin}{Thinning interval}
 \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
-\item{num_divergent}{Number of divergent transitions across all chains.
-\strong{Problem indicators}: Any value > 0 indicates sampling issues}
 \item{perc_divergent}{Percentage of divergent transitions across all chains.
 \strong{Problem indicators}: Any value > 0\% indicates sampling issues}
 \item{max_treedepth}{Number of transitions that hit maximum tree depth.

@@ -16,8 +16,6 @@ generics::glance
 #'   \item{niters}{Number of iterations per chain (post-warmup)}
 #'   \item{nthin}{Thinning interval}
 #'   \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
-#'   \item{num_divergent}{Number of divergent transitions across all chains.
-#'     **Problem indicators**: Any value > 0 indicates sampling issues}
 #'   \item{perc_divergent}{Percentage of divergent transitions across all chains.
 #'     **Problem indicators**: Any value > 0% indicates sampling issues}
 #'   \item{max_treedepth}{Number of transitions that hit maximum tree depth.
@@ -45,8 +43,7 @@ glance.cmdstan_mcmc_analysis <- function(x, ...) {
   class(x2) <- setdiff(class(x), "cmdstan_mcmc_analysis")
   gl <- glance(x2, ...)
   diag_summary <- x$cmdstan_fit$diagnostic_summary()
-  gl$num_divergent <- sum(diag_summary$num_divergent)
-  gl$perc_divergent <- gl$num_divergent / gl$niters / gl$nchains * 100
+  gl$perc_divergent <- sum(diag_summary$num_divergent) / gl$niters / gl$nchains * 100
   gl$max_treedepth <- sum(diag_summary$num_max_treedepth)
   gl$perc_max_treedepth <- gl$max_treedepth / gl$niters / gl$nchains * 100
   gl$ebfmi <- signif(min(diag_summary$ebfmi), digits = 3)
