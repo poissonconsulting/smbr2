@@ -47,6 +47,7 @@ glance.cmdstan_mcmc_analysis <- function(x, ...) {
   gl$max_treedepth <- sum(diag_summary$num_max_treedepth)
   gl$perc_max_treedepth <- gl$max_treedepth / gl$niters / gl$nchains * 100
   gl$ebfmi <- signif(min(diag_summary$ebfmi), digits = 3)
+  gl$converged <- gl$converged & (gl$perc_divergent < 0.2)
 
   gl
 }

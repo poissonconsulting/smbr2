@@ -248,14 +248,16 @@ test_that("glance calculates divergent transitions correctly", {
   local_mocked_s3_method(
     "glance",
     "stub_analysis",
-    function(x, ...) data.frame(nchains = 4L, niters = 250L)
+    # converged gets flipped from TRUE to FALSE when divergences are too common
+    function(x, ...) data.frame(nchains = 4L, niters = 250L, converged = TRUE)
   )
 
-  stub_analysis <- function(num_divergent, num_max_treedepth) {
+  stub_analysis <- function(num_divergent, num_max_treedepth, converged) {
     diag_summary <- list(
       num_divergent = num_divergent,
       num_max_treedepth = num_max_treedepth,
-      ebfmi = rep(1, length(num_divergent))
+      ebfmi = rep(1, length(num_divergent)),
+      converged = converged
     )
     structure(
       list(cmdstan_fit = list(diagnostic_summary = function() diag_summary)),
@@ -264,25 +266,32 @@ test_that("glance calculates divergent transitions correctly", {
   }
 
   # 4 chains of 250 iterations = 1000 transitions
-  glance <- glance(stub_analysis(c(3, 7, 0, 10), c(2, 0, 0, 3)))
+  glance <- glance(stub_analysis(c(3, 7, 0, 10), c(2, 0, 0, 3), TRUE))
 
   expect_identical(glance$perc_divergent, 2)
   expect_identical(glance$max_treedepth, 5)
   expect_identical(glance$perc_max_treedepth, 0.5)
+  expect_identical(glance$converged, FALSE) # based on divergences alone
 
   # no divergent transitions or max treedepth hits
-  glance <- glance(stub_analysis(c(0, 0, 0, 0), c(0, 0, 0, 0)))
+  glance <- glance(stub_analysis(c(0, 0, 0, 0), c(0, 0, 0, 0), TRUE))
 
   expect_identical(glance$perc_divergent, 0)
   expect_identical(glance$max_treedepth, 0)
   expect_identical(glance$perc_max_treedepth, 0)
-
+  expect_identical(glance$converged, TRUE)
+  
   # every transition divergent
-  glance <- glance(stub_analysis(rep(250, 4), rep(250, 4)))
+  glance <- glance(stub_analysis(rep(250, 4), rep(250, 4), TRUE))
 
   expect_identical(glance$perc_divergent, 100)
   expect_identical(glance$max_treedepth, 1000)
   expect_identical(glance$perc_max_treedepth, 100)
+  expect_identical(glance$converged, FALSE)
+  
+  # not converged due to other reasons besides divergences
+  glance <- glance(stub_analysis(rep(250, 4), rep(250, 4), FALSE))
+  expect_identical(glance$converged, FALSE)
 })
 
 test_that("glance reports divergent transitions for a funnel model", {
@@ -349,4 +358,5 @@ model {
     glance$perc_divergent,
     mean(analysis$cmdstan_fit$diagnostic_summary()$num_divergent) / glance$niters * 100
   )
+  expect_identical(glance$converged, FALSE)
 })
