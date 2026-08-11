@@ -167,7 +167,6 @@ model {
       "ess",
       "rhat",
       "converged",
-      "num_divergent",
       "perc_divergent",
       "max_treedepth",
       "perc_max_treedepth",
