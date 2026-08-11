@@ -45,4 +45,4 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Config/Needs/website: poissonconsulting/poissontemplate
 Config/testthat/edition: 3
-Config/roxygen2/version: 8.0.0.9000
+Config/roxygen2/version: 8.1.0.9000
