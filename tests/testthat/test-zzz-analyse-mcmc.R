@@ -241,14 +241,17 @@ model {
   expect_equal(x, coef$estimate)
 })
 
-test_that("glance calculates divergent transitions correctly", {
+test_that("glance calculates divergent transitions and declares convergence correctly", {
   # a stub in place of the parent glance method so the test does not
   # require a fitted model
   local_mocked_s3_method(
     "glance",
     "stub_analysis",
     # converged gets flipped from TRUE to FALSE when divergences are too common
-    function(x, ...) data.frame(nchains = 4L, niters = 250L, converged = TRUE)
+    function(x, ...) {
+      data.frame(nchains = 4L, niters = 250L,
+                 converged = x$cmdstan_fit$diagnostic_summary()$converged)
+    }
   )
 
   stub_analysis <- function(num_divergent, num_max_treedepth, converged) {
@@ -287,6 +290,10 @@ test_that("glance calculates divergent transitions correctly", {
   
   # not converged due to other reasons besides divergences: should stay FALSE
   glance <- glance(stub_analysis(rep(250, 4), rep(250, 4), FALSE))
+  expect_identical(glance$converged, FALSE)
+  
+  # not converged due to ESS or Rhat but divergences are ok: should stay FALSE
+  glance <- glance(stub_analysis(rep(0, 4), rep(0, 4), FALSE))
   expect_identical(glance$converged, FALSE)
 })
 
