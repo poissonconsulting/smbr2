@@ -285,14 +285,12 @@ test_that("glance calculates divergent transitions correctly", {
   expect_identical(glance$perc_max_treedepth, 100)
   expect_identical(glance$converged, FALSE)
   
-  # not converged due to other reasons besides divergences
+  # not converged due to other reasons besides divergences: should stay FALSE
   glance <- glance(stub_analysis(rep(250, 4), rep(250, 4), FALSE))
   expect_identical(glance$converged, FALSE)
 })
 
 test_that("glance reports divergent transitions for a funnel model", {
-  embr::set_analysis_mode("check")
-
   # Neal's funnel in its centered parameterization: the group effects collapse
   # towards zero as sGroup shrinks, creating a neck the sampler cannot explore
   # without diverging. The vague prior on log_sGroup and the weak likelihood
@@ -347,12 +345,12 @@ model {
     adapt_delta = 0.5
   )
 
-  glance <- glance(analysis)
+  glance <- suppressMessages(glance(analysis, rhat = 5, esr = 0))
 
   expect_gt(glance$perc_divergent, 0)
   expect_identical(
     glance$perc_divergent,
-    mean(analysis$cmdstan_fit$diagnostic_summary()$num_divergent) / glance$niters * 100
+    mean(suppressMessages(analysis$cmdstan_fit$diagnostic_summary())$num_divergent) / glance$niters * 100
   )
   expect_identical(glance$converged, FALSE)
 })
