@@ -48,7 +48,7 @@ generics::glance
 #'
 #' @seealso [embr::glance()], [diagnose()]
 #' @export
-glance.cmdstan_mcmc_analysis <- function(x, ...) {
+glance.cmdstan_mcmc_analysis <- function(x, ..., max_perc_divergent = getOption("mb.perc_divergent", 0.2)) {
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_mcmc_analysis")
   gl <- glance(x2, ...)
@@ -56,7 +56,7 @@ glance.cmdstan_mcmc_analysis <- function(x, ...) {
   gl$perc_divergent <- sum(diag_summary$num_divergent) / gl$niters / gl$nchains * 100
   gl$perc_max_treedepth <- sum(diag_summary$num_max_treedepth) / gl$niters / gl$nchains * 100
   gl$ebfmi <- signif(min(diag_summary$ebfmi), digits = 3)
-  gl$converged <- gl$converged & (gl$perc_divergent < 0.2)
+  gl$converged <- gl$converged & (gl$perc_divergent < max_perc_divergent)
 
   gl
 }
