@@ -39,14 +39,21 @@ Provides a one-row summary of key diagnostics for MCMC analysis results.
 \details{
 \strong{Diagnostic interpretation:}
 \itemize{
-\item \strong{Divergent transitions}: Should be 0. Any divergent transitions indicate the
+\item \strong{Divergent transitions}: Should ideally be 0. Any divergent transitions indicate the
 sampler had numerical issues and results may be unreliable.
-\item \strong{Max treedepth}: Should be 0 or very low. High values suggest the sampler
-is working hard and may benefit from increased \code{adapt_delta} or
-reparameterization.
+\item \strong{Max treedepth}: Should ideally be 0 or very low. High values suggest the sampler
+is working hard and may benefit from reparameterization. Increasing max
+treedepth is also an option but it is generally discouraged since it
+increases model fitting times without addressing the underlying issue.
+High max treedepth does not necessarily indicate convergence issues.
 \item \strong{E-BFMI}: Should be > 0.2. Values < 0.2 suggest poor adaptation, often
 requiring longer warmup or model reparameterization.
 }
+
+However, the sensitivity to problematic diagnostics depends on the analysis
+mode set via \code{\link[embr:set_analysis_mode]{embr::set_analysis_mode()}}. The \code{'paper'} mode is the only
+mode that requires divergent transitions to be 0\% -- all other modes accept
+some level of tolerance.
 }
 \seealso{
 \code{\link[embr:glance]{embr::glance()}}, \code{\link[=diagnose]{diagnose()}}
