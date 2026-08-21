@@ -56,7 +56,7 @@ glance.cmdstan_mcmc_analysis <- function(x, ..., max_perc_divergent = getOption(
   gl$perc_divergent <- sum(diag_summary$num_divergent) / gl$niters / gl$nchains * 100
   gl$perc_max_treedepth <- sum(diag_summary$num_max_treedepth) / gl$niters / gl$nchains * 100
   gl$ebfmi <- signif(min(diag_summary$ebfmi), digits = 3)
-  gl$converged <- gl$converged & (gl$perc_divergent < max_perc_divergent)
+  gl$converged <- gl$converged && (gl$perc_divergent < max_perc_divergent)
 
   gl
 }
