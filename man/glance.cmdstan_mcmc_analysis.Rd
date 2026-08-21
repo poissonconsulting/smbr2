@@ -19,7 +19,12 @@ A tibble with one row containing:
 \item{nchains}{Number of MCMC chains}
 \item{niters}{Number of iterations per chain (post-warmup)}
 \item{nthin}{Thinning interval}
-\item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
+\item{converged}{Logical indicating convergence.
+\code{TRUE} if:
+\code{max(rhat)} is below its threshold,
+\code{min(ESS)} is above its threshold, and
+\code{perc_divergent} is below its threshold.
+Thresholds are determined by the analysis mode set by \code{\link[embr:set_analysis_mode]{embr::set_analysis_mode()}}.}
 \item{perc_divergent}{Percentage of divergent transitions across all chains.
 \strong{Problem indicators}: Any value > 0\% indicates sampling issues}
 \item{perc_max_treedepth}{Percentage of transitions that hit maximum tree depth.

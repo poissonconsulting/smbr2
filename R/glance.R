@@ -15,7 +15,12 @@ generics::glance
 #'   \item{nchains}{Number of MCMC chains}
 #'   \item{niters}{Number of iterations per chain (post-warmup)}
 #'   \item{nthin}{Thinning interval}
-#'   \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
+#'   \item{converged}{Logical indicating convergence.
+#'     `TRUE` if:
+#'     `max(rhat)` is below its threshold,
+#'     `min(ESS)` is above its threshold, and
+#'     `perc_divergent` is below its threshold.
+#'     Thresholds are determined by the analysis mode set by [`embr::set_analysis_mode()`].}
 #'   \item{perc_divergent}{Percentage of divergent transitions across all chains.
 #'     **Problem indicators**: Any value > 0% indicates sampling issues}
 #'   \item{perc_max_treedepth}{Percentage of transitions that hit maximum tree depth.
