@@ -7,6 +7,9 @@ generics::glance
 #'
 #' @param x A `cmdstan_mcmc_analysis` object.
 #' @param ... Additional arguments (unused).
+#' @param max_perc_divergent A percentage indicating the maximum number of
+#' divergent transitions allowed for determining if the model converged.
+#' Generally set via [`embr::set_analysis_mode()`].
 #'
 #' @return A tibble with one row containing:
 #' \describe{

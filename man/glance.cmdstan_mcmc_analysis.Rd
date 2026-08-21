@@ -4,12 +4,16 @@
 \alias{glance.cmdstan_mcmc_analysis}
 \title{Glance at CmdStanR MCMC Analysis}
 \usage{
-\method{glance}{cmdstan_mcmc_analysis}(x, ...)
+\method{glance}{cmdstan_mcmc_analysis}(x, ..., max_perc_divergent = getOption("mb.perc_divergent", 0.2))
 }
 \arguments{
 \item{x}{A \code{cmdstan_mcmc_analysis} object.}
 
 \item{...}{Additional arguments (unused).}
+
+\item{max_perc_divergent}{A percentage indicating the maximum number of
+divergent transitions allowed for determining if the model converged.
+Generally set via \code{\link[embr:set_analysis_mode]{embr::set_analysis_mode()}}.}
 }
 \value{
 A tibble with one row containing:
