@@ -4,7 +4,11 @@
 \alias{glance.cmdstan_mcmc_analysis}
 \title{Glance at CmdStanR MCMC Analysis}
 \usage{
-\method{glance}{cmdstan_mcmc_analysis}(x, ..., max_perc_divergent = getOption("mb.perc_divergent", 0.2))
+\method{glance}{cmdstan_mcmc_analysis}(
+  x,
+  ...,
+  max_perc_divergent = getOption("mb.prop_divergent", 0.002) * 100
+)
 }
 \arguments{
 \item{x}{A \code{cmdstan_mcmc_analysis} object.}
@@ -25,9 +29,9 @@ A tibble with one row containing:
 \item{nthin}{Thinning interval}
 \item{converged}{Logical indicating convergence.
 \code{TRUE} if:
-\code{max(rhat)} is below its threshold,
-\code{min(ESS)} is above its threshold, and
-\code{perc_divergent} is below its threshold.
+\code{max(rhat)} is less than or equal to its threshold,
+\code{min(ESS)} is greater than or equal to its threshold, and
+\code{perc_divergent} is less than or euqal to its threshold.
 Thresholds are determined by the analysis mode set by \code{\link[embr:set_analysis_mode]{embr::set_analysis_mode()}}.}
 \item{perc_divergent}{Percentage of divergent transitions across all chains.
 \strong{Problem indicators}: Any value > 0\% indicates sampling issues}

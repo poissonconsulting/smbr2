@@ -20,9 +20,9 @@ generics::glance
 #'   \item{nthin}{Thinning interval}
 #'   \item{converged}{Logical indicating convergence.
 #'     `TRUE` if:
-#'     `max(rhat)` is below its threshold,
-#'     `min(ESS)` is above its threshold, and
-#'     `perc_divergent` is below its threshold.
+#'     `max(rhat)` is less than or equal to its threshold,
+#'     `min(ESS)` is greater than or equal to its threshold, and
+#'     `perc_divergent` is less than or euqal to its threshold.
 #'     Thresholds are determined by the analysis mode set by [`embr::set_analysis_mode()`].}
 #'   \item{perc_divergent}{Percentage of divergent transitions across all chains.
 #'     **Problem indicators**: Any value > 0% indicates sampling issues}
@@ -52,7 +52,7 @@ generics::glance
 #' @seealso [embr::glance()], [diagnose()]
 #' @export
 glance.cmdstan_mcmc_analysis <- function(x, ..., max_perc_divergent = getOption("mb.prop_divergent", 0.002) * 100) {
-  chk_class(max_perc_divergent, "numeric")
+  chk_number(max_perc_divergent)
   chk_range(max_perc_divergent, range = c(0, 100))
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_mcmc_analysis")
@@ -61,7 +61,7 @@ glance.cmdstan_mcmc_analysis <- function(x, ..., max_perc_divergent = getOption(
   gl$perc_divergent <- sum(diag_summary$num_divergent) / gl$niters / gl$nchains * 100
   gl$perc_max_treedepth <- sum(diag_summary$num_max_treedepth) / gl$niters / gl$nchains * 100
   gl$ebfmi <- signif(min(diag_summary$ebfmi), digits = 3)
-  gl$converged <- gl$converged && (gl$perc_divergent < max_perc_divergent)
+  gl$converged <- gl$converged && (gl$perc_divergent <= max_perc_divergent)
 
   gl
 }

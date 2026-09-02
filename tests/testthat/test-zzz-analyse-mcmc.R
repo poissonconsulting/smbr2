@@ -318,7 +318,7 @@ test_that("glance calculates divergent transitions and declares convergence corr
     expect_false(glance(stub)$converged)
   })
   
-  stub <- stub_analysis(c(250, 250, 250, 249), rep(0, 4), TRUE)
+  stub <- stub_analysis(c(250, 250, 250, 250), rep(0, 4), TRUE)
   
   withr::with_options(list(mb.prop_divergent = NULL), {
     expect_false(glance(stub)$converged)
