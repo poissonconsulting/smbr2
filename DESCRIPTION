@@ -15,7 +15,7 @@ Imports:
     chk,
     cmdstanr,
     coda,
-    embr (>= 0.1.0),
+    embr (>= 1.1.0.9000),
     generics,
     magrittr,
     mcmcr,
@@ -33,7 +33,8 @@ Suggests:
     RcppEigen,
     readr,
     testthat,
-    universals
+    universals,
+    withr
 Remotes: 
     poissonconsulting/bauw,
     poissonconsulting/embr,
