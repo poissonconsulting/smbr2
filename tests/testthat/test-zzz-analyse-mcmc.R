@@ -154,8 +154,7 @@ model {
   expect_no_error(glance(analysis, max_perc_divergent = 0))
   expect_no_error(glance(analysis, max_perc_divergent = 100))
   expect_no_error(glance(analysis, max_perc_divergent = 10.1))
-  expect_error(glance(analysis, max_perc_divergent = "0"), "must inherit from class 'numeric'")
-  expect_error(glance(analysis, max_perc_divergent = 0L), "must inherit from class 'numeric'")
+  expect_error(glance(analysis, max_perc_divergent = "0"), "must be a number")
   expect_error(glance(analysis, max_perc_divergent = -1), "must be between 0 and 100")
   expect_error(glance(analysis, max_perc_divergent = 101), "must be between 0 and 100")
   
