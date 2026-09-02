@@ -51,7 +51,9 @@ generics::glance
 #'
 #' @seealso [embr::glance()], [diagnose()]
 #' @export
-glance.cmdstan_mcmc_analysis <- function(x, ..., max_perc_divergent = getOption("mb.perc_divergent", 0.2)) {
+glance.cmdstan_mcmc_analysis <- function(x, ..., max_perc_divergent = getOption("mb.prop_divergent", 0.002) * 100) {
+  chk_class(max_perc_divergent, "numeric")
+  chk_range(max_perc_divergent, range = c(0, 100))
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_mcmc_analysis")
   gl <- glance(x2, ...)
