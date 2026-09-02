@@ -150,6 +150,15 @@ model {
   rhat_stan <- rhat_stan[!(rhat_stan$term %in% c("lp__", "eAnnual")), ]
   expect_identical(sort(rhat$term), sort(rhat_stan$term))
 
+  # ensure glance() requires that max_perc_divergent is a percentage
+  expect_no_error(glance(analysis, max_perc_divergent = 0))
+  expect_no_error(glance(analysis, max_perc_divergent = 100))
+  expect_no_error(glance(analysis, max_perc_divergent = 10.1))
+  expect_error(glance(analysis, max_perc_divergent = "0"), "must inherit from class 'numeric'")
+  expect_error(glance(analysis, max_perc_divergent = 0L), "must inherit from class 'numeric'")
+  expect_error(glance(analysis, max_perc_divergent = -1), "must be between 0 and 100")
+  expect_error(glance(analysis, max_perc_divergent = 101), "must be between 0 and 100")
+  
   glance <- glance(analysis)
   expect_s3_class(glance, "tbl")
   expect_identical(glance$n, 40L)
@@ -295,6 +304,31 @@ test_that("glance calculates divergent transitions and declares convergence corr
   # not converged due to ESS or Rhat but divergences are ok: should stay FALSE
   glance <- glance(stub_analysis(rep(0, 4), rep(0, 4), FALSE))
   expect_identical(glance$converged, FALSE)
+  
+  # check that setting the option has an effect
+  stub <- stub_analysis(c(1, 0, 0, 0), rep(0, 4), TRUE)
+  
+  withr::with_options(list(mb.prop_divergent = NULL), {
+    expect_true(glance(stub)$converged)
+  })
+  withr::with_options(list(mb.prop_divergent = 0.002), {
+    expect_true(glance(stub)$converged)
+  })
+  withr::with_options(list(mb.prop_divergent = 0), {
+    expect_false(glance(stub)$converged)
+  })
+  
+  stub <- stub_analysis(c(250, 250, 250, 249), rep(0, 4), TRUE)
+  
+  withr::with_options(list(mb.prop_divergent = NULL), {
+    expect_false(glance(stub)$converged)
+  })
+  withr::with_options(list(mb.prop_divergent = 0), {
+    expect_false(glance(stub)$converged)
+  })
+  withr::with_options(list(mb.prop_divergent = 1), {
+    expect_true(glance(stub)$converged)
+  })
 })
 
 test_that("glance reports divergent transitions for a funnel model", {
