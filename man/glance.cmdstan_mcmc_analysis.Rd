@@ -4,12 +4,20 @@
 \alias{glance.cmdstan_mcmc_analysis}
 \title{Glance at CmdStanR MCMC Analysis}
 \usage{
-\method{glance}{cmdstan_mcmc_analysis}(x, ...)
+\method{glance}{cmdstan_mcmc_analysis}(
+  x,
+  ...,
+  max_perc_divergent = getOption("mb.prop_divergent", 0.002) * 100
+)
 }
 \arguments{
 \item{x}{A \code{cmdstan_mcmc_analysis} object.}
 
 \item{...}{Additional arguments (unused).}
+
+\item{max_perc_divergent}{A percentage indicating the maximum number of
+divergent transitions allowed for determining if the model converged.
+Generally set via \code{\link[embr:set_analysis_mode]{embr::set_analysis_mode()}}.}
 }
 \value{
 A tibble with one row containing:
@@ -19,11 +27,16 @@ A tibble with one row containing:
 \item{nchains}{Number of MCMC chains}
 \item{niters}{Number of iterations per chain (post-warmup)}
 \item{nthin}{Thinning interval}
-\item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
-\item{num_divergent}{Number of divergent transitions across all chains.
-\strong{Problem indicators}: Any value > 0 indicates sampling issues}
-\item{max_treedepth}{Number of transitions that hit maximum tree depth.
-\strong{Problem indicators}: Values > 0 may indicate inefficient sampling}
+\item{converged}{Logical indicating convergence.
+\code{TRUE} if:
+\code{max(rhat)} is less than or equal to its threshold,
+\code{min(ESS)} is greater than or equal to its threshold, and
+\code{perc_divergent} is less than or euqal to its threshold.
+Thresholds are determined by the analysis mode set by \code{\link[embr:set_analysis_mode]{embr::set_analysis_mode()}}.}
+\item{perc_divergent}{Percentage of divergent transitions across all chains.
+\strong{Problem indicators}: Any value > 0\% indicates sampling issues}
+\item{perc_max_treedepth}{Percentage of transitions that hit maximum tree depth.
+\strong{Problem indicators}: Values > 0\% may indicate inefficient sampling}
 \item{ebfmi}{Minimum Energy Bayesian Fraction of Missing Information across chains.
 \strong{Problem indicators}: Values < 0.2 indicate poor adaptation/warmup}
 }
@@ -34,13 +47,21 @@ Provides a one-row summary of key diagnostics for MCMC analysis results.
 \details{
 \strong{Diagnostic interpretation:}
 \itemize{
-\item \strong{Divergent transitions}: Should be 0. Any divergent transitions indicate the
+\item \strong{Divergent transitions}: Should ideally be 0. Any divergent transitions indicate the
 sampler had numerical issues and results may be unreliable.
-\item \strong{Max treedepth}: Should be 0 or very low. High values suggest the sampler
-is working hard and may benefit from increased \code{adapt_delta}.
+\item \strong{Max treedepth}: Should ideally be 0 or very low. High values suggest the sampler
+is working hard and may benefit from reparameterization. Increasing max
+treedepth is also an option but it is generally discouraged since it
+increases model fitting times without addressing the underlying issue.
+High max treedepth does not necessarily indicate convergence issues.
 \item \strong{E-BFMI}: Should be > 0.2. Values < 0.2 suggest poor adaptation, often
 requiring longer warmup or model reparameterization.
 }
+
+However, the sensitivity to problematic diagnostics depends on the analysis
+mode set via \code{\link[embr:set_analysis_mode]{embr::set_analysis_mode()}}. The \code{'paper'} mode is the only
+mode that requires divergent transitions to be 0\% -- all other modes accept
+some level of tolerance.
 }
 \seealso{
 \code{\link[embr:glance]{embr::glance()}}, \code{\link[=diagnose]{diagnose()}}

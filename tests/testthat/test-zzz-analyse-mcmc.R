@@ -150,6 +150,14 @@ model {
   rhat_stan <- rhat_stan[!(rhat_stan$term %in% c("lp__", "eAnnual")), ]
   expect_identical(sort(rhat$term), sort(rhat_stan$term))
 
+  # ensure glance() requires that max_perc_divergent is a percentage
+  expect_no_error(glance(analysis, max_perc_divergent = 0))
+  expect_no_error(glance(analysis, max_perc_divergent = 100))
+  expect_no_error(glance(analysis, max_perc_divergent = 10.1))
+  expect_error(glance(analysis, max_perc_divergent = "0"), "must be a number")
+  expect_error(glance(analysis, max_perc_divergent = -1), "must be between 0 and 100")
+  expect_error(glance(analysis, max_perc_divergent = 101), "must be between 0 and 100")
+  
   glance <- glance(analysis)
   expect_s3_class(glance, "tbl")
   expect_identical(glance$n, 40L)
@@ -167,8 +175,8 @@ model {
       "ess",
       "rhat",
       "converged",
-      "num_divergent",
-      "max_treedepth",
+      "perc_divergent",
+      "perc_max_treedepth",
       "ebfmi"
     )
   )
@@ -239,4 +247,150 @@ model {
   x <- unlist(estimates(analysis))
   names(x) <- NULL
   expect_equal(x, coef$estimate)
+})
+
+test_that("glance calculates divergent transitions and declares convergence correctly", {
+  # a stub in place of the parent glance method so the test does not
+  # require a fitted model
+  local_mocked_s3_method(
+    "glance",
+    "stub_analysis",
+    # converged gets flipped from TRUE to FALSE when divergences are too common
+    function(x, ...) {
+      data.frame(nchains = 4L, niters = 250L,
+                 converged = x$cmdstan_fit$diagnostic_summary()$converged)
+    }
+  )
+
+  stub_analysis <- function(num_divergent, num_max_treedepth, converged) {
+    diag_summary <- list(
+      num_divergent = num_divergent,
+      num_max_treedepth = num_max_treedepth,
+      ebfmi = rep(1, length(num_divergent)),
+      converged = converged
+    )
+    structure(
+      list(cmdstan_fit = list(diagnostic_summary = function() diag_summary)),
+      class = c("cmdstan_mcmc_analysis", "stub_analysis")
+    )
+  }
+
+  # 4 chains of 250 iterations = 1000 transitions
+  glance <- glance(stub_analysis(c(3, 7, 0, 10), c(2, 0, 0, 3), TRUE))
+
+  expect_identical(glance$perc_divergent, 2)
+  expect_identical(glance$perc_max_treedepth, 0.5)
+  expect_identical(glance$converged, FALSE) # based on divergences alone
+
+  # no divergent transitions or max treedepth hits
+  glance <- glance(stub_analysis(c(0, 0, 0, 0), c(0, 0, 0, 0), TRUE))
+
+  expect_identical(glance$perc_divergent, 0)
+  expect_identical(glance$perc_max_treedepth, 0)
+  expect_identical(glance$converged, TRUE)
+  
+  # every transition divergent
+  glance <- glance(stub_analysis(rep(250, 4), rep(250, 4), TRUE))
+
+  expect_identical(glance$perc_divergent, 100)
+  expect_identical(glance$perc_max_treedepth, 100)
+  expect_identical(glance$converged, FALSE)
+  
+  # not converged due to other reasons besides divergences: should stay FALSE
+  glance <- glance(stub_analysis(rep(250, 4), rep(250, 4), FALSE))
+  expect_identical(glance$converged, FALSE)
+  
+  # not converged due to ESS or Rhat but divergences are ok: should stay FALSE
+  glance <- glance(stub_analysis(rep(0, 4), rep(0, 4), FALSE))
+  expect_identical(glance$converged, FALSE)
+  
+  # check that setting the option has an effect
+  stub <- stub_analysis(c(1, 0, 0, 0), rep(0, 4), TRUE)
+  
+  withr::with_options(list(mb.prop_divergent = NULL), {
+    expect_true(glance(stub)$converged)
+  })
+  withr::with_options(list(mb.prop_divergent = 0.002), {
+    expect_true(glance(stub)$converged)
+  })
+  withr::with_options(list(mb.prop_divergent = 0), {
+    expect_false(glance(stub)$converged)
+  })
+  
+  stub <- stub_analysis(c(250, 250, 250, 250), rep(0, 4), TRUE)
+  
+  withr::with_options(list(mb.prop_divergent = NULL), {
+    expect_false(glance(stub)$converged)
+  })
+  withr::with_options(list(mb.prop_divergent = 0), {
+    expect_false(glance(stub)$converged)
+  })
+  withr::with_options(list(mb.prop_divergent = 1), {
+    expect_true(glance(stub)$converged)
+  })
+})
+
+test_that("glance reports divergent transitions for a funnel model", {
+  # Neal's funnel in its centered parameterization: the group effects collapse
+  # towards zero as sGroup shrinks, creating a neck the sampler cannot explore
+  # without diverging. The vague prior on log_sGroup and the weak likelihood
+  # (large observation sd, two observations per group) leave the funnel almost
+  # entirely unconstrained by the data.
+  model <- embr::model(
+    mb_code(
+      "
+data {
+  int nObs;
+  int nGroup;
+  array[nObs] int Group;
+  array[nObs] real y;
+}
+parameters {
+  real log_sGroup;
+  vector[nGroup] bGroup;
+}
+transformed parameters {
+  real sGroup;
+  sGroup = exp(log_sGroup);
+}
+model {
+  log_sGroup ~ normal(0, 10);
+  bGroup ~ normal(0, sGroup);
+  for (i in 1:nObs) {
+    y[i] ~ normal(bGroup[Group[i]], 10);
+  }
+}"
+    ),
+    select_data = list("y" = numeric(), Group = factor()),
+    random_effects = list(bGroup = "Group"),
+    # start the chains high up the funnel, where the step size adapts to the
+    # wide part of the posterior and then fails in the neck
+    gen_inits = function(data) {
+      list(log_sGroup = 10)
+    }
+  )
+
+  data <- data.frame(
+    y = c(-1, 1, -0.5, 0.5, -2, 2, 0, 0, -1.5, 1.5, -0.2, 0.2, -3, 3, -1, 1),
+    Group = factor(rep(1:8, each = 2))
+  )
+
+  analysis <- embr::analyse(
+    model,
+    data = data,
+    stan_engine = "cmdstan-mcmc",
+    seed = 42,
+    # a permissive target acceptance rate leaves the step size far too large
+    # for the neck of the funnel, making divergences all but certain
+    adapt_delta = 0.5
+  )
+
+  glance <- suppressMessages(glance(analysis, rhat = 5, esr = 0))
+
+  expect_gt(glance$perc_divergent, 0)
+  expect_identical(
+    glance$perc_divergent,
+    mean(suppressMessages(analysis$cmdstan_fit$diagnostic_summary())$num_divergent) / glance$niters * 100
+  )
+  expect_identical(glance$converged, FALSE)
 })

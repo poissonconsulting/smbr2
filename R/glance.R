@@ -7,6 +7,9 @@ generics::glance
 #'
 #' @param x A `cmdstan_mcmc_analysis` object.
 #' @param ... Additional arguments (unused).
+#' @param max_perc_divergent A percentage indicating the maximum number of
+#' divergent transitions allowed for determining if the model converged.
+#' Generally set via [`embr::set_analysis_mode()`].
 #'
 #' @return A tibble with one row containing:
 #' \describe{
@@ -15,34 +18,50 @@ generics::glance
 #'   \item{nchains}{Number of MCMC chains}
 #'   \item{niters}{Number of iterations per chain (post-warmup)}
 #'   \item{nthin}{Thinning interval}
-#'   \item{converged}{Logical indicating convergence (TRUE if max R-hat < rhat threshold)}
-#'   \item{num_divergent}{Number of divergent transitions across all chains.
-#'     **Problem indicators**: Any value > 0 indicates sampling issues}
-#'   \item{max_treedepth}{Number of transitions that hit maximum tree depth.
-#'     **Problem indicators**: Values > 0 may indicate inefficient sampling}
+#'   \item{converged}{Logical indicating convergence.
+#'     `TRUE` if:
+#'     `max(rhat)` is less than or equal to its threshold,
+#'     `min(ESS)` is greater than or equal to its threshold, and
+#'     `perc_divergent` is less than or euqal to its threshold.
+#'     Thresholds are determined by the analysis mode set by [`embr::set_analysis_mode()`].}
+#'   \item{perc_divergent}{Percentage of divergent transitions across all chains.
+#'     **Problem indicators**: Any value > 0% indicates sampling issues}
+#'   \item{perc_max_treedepth}{Percentage of transitions that hit maximum tree depth.
+#'     **Problem indicators**: Values > 0% may indicate inefficient sampling}
 #'   \item{ebfmi}{Minimum Energy Bayesian Fraction of Missing Information across chains.
 #'     **Problem indicators**: Values < 0.2 indicate poor adaptation/warmup}
 #' }
 #'
 #' @details
 #' **Diagnostic interpretation:**
-#' - **Divergent transitions**: Should be 0. Any divergent transitions indicate the
+#' - **Divergent transitions**: Should ideally be 0. Any divergent transitions indicate the
 #'   sampler had numerical issues and results may be unreliable.
-#' - **Max treedepth**: Should be 0 or very low. High values suggest the sampler
-#'   is working hard and may benefit from increased `adapt_delta`.
+#' - **Max treedepth**: Should ideally be 0 or very low. High values suggest the sampler
+#'   is working hard and may benefit from reparameterization. Increasing max
+#'   treedepth is also an option but it is generally discouraged since it
+#'   increases model fitting times without addressing the underlying issue.
+#'   High max treedepth does not necessarily indicate convergence issues.
 #' - **E-BFMI**: Should be > 0.2. Values < 0.2 suggest poor adaptation, often
 #'   requiring longer warmup or model reparameterization.
+#'   
+#' However, the sensitivity to problematic diagnostics depends on the analysis
+#' mode set via [`embr::set_analysis_mode()`]. The `'paper'` mode is the only
+#' mode that requires divergent transitions to be 0% -- all other modes accept
+#' some level of tolerance.
 #'
 #' @seealso [embr::glance()], [diagnose()]
 #' @export
-glance.cmdstan_mcmc_analysis <- function(x, ...) {
+glance.cmdstan_mcmc_analysis <- function(x, ..., max_perc_divergent = getOption("mb.prop_divergent", 0.002) * 100) {
+  chk_number(max_perc_divergent)
+  chk_range(max_perc_divergent, range = c(0, 100))
   x2 <- x
   class(x2) <- setdiff(class(x), "cmdstan_mcmc_analysis")
   gl <- glance(x2, ...)
   diag_summary <- x$cmdstan_fit$diagnostic_summary()
-  gl$num_divergent <- sum(diag_summary$num_divergent)
-  gl$max_treedepth <- sum(diag_summary$num_max_treedepth)
+  gl$perc_divergent <- sum(diag_summary$num_divergent) / gl$niters / gl$nchains * 100
+  gl$perc_max_treedepth <- sum(diag_summary$num_max_treedepth) / gl$niters / gl$nchains * 100
   gl$ebfmi <- signif(min(diag_summary$ebfmi), digits = 3)
+  gl$converged <- gl$converged && (gl$perc_divergent <= max_perc_divergent)
 
   gl
 }
