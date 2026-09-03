@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">smbr2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,11 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'cmdstan_mcmc_analysis'</span></span>
-<span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">glance</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  max_perc_divergent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"mb.prop_divergent"</span>, <span class="fl">0.002</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -53,6 +57,12 @@
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments (unused).</p></dd>
+
+
+<dt id="arg-max-perc-divergent">max_perc_divergent<a class="anchor" aria-label="anchor" href="#arg-max-perc-divergent"></a></dt>
+<dd><p>A percentage indicating the maximum number of
+divergent transitions allowed for determining if the model converged.
+Generally set via <code><a href="https://rdrr.io/pkg/embr/man/set_analysis_mode.html" class="external-link">embr::set_analysis_mode()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -73,15 +83,20 @@
 <dd><p>Thinning interval</p></dd>
 
 <dt>converged</dt>
-<dd><p>Logical indicating convergence (TRUE if max R-hat &lt; rhat threshold)</p></dd>
+<dd><p>Logical indicating convergence.
+<code>TRUE</code> if:
+<code>max(rhat)</code> is less than or equal to its threshold,
+<code>min(ESS)</code> is greater than or equal to its threshold, and
+<code>perc_divergent</code> is less than or euqal to its threshold.
+Thresholds are determined by the analysis mode set by <code><a href="https://rdrr.io/pkg/embr/man/set_analysis_mode.html" class="external-link">embr::set_analysis_mode()</a></code>.</p></dd>
 
-<dt>num_divergent</dt>
-<dd><p>Number of divergent transitions across all chains.
-<strong>Problem indicators</strong>: Any value &gt; 0 indicates sampling issues</p></dd>
+<dt>perc_divergent</dt>
+<dd><p>Percentage of divergent transitions across all chains.
+<strong>Problem indicators</strong>: Any value &gt; 0% indicates sampling issues</p></dd>
 
-<dt>max_treedepth</dt>
-<dd><p>Number of transitions that hit maximum tree depth.
-<strong>Problem indicators</strong>: Values &gt; 0 may indicate inefficient sampling</p></dd>
+<dt>perc_max_treedepth</dt>
+<dd><p>Percentage of transitions that hit maximum tree depth.
+<strong>Problem indicators</strong>: Values &gt; 0% may indicate inefficient sampling</p></dd>
 
 <dt>ebfmi</dt>
 <dd><p>Minimum Energy Bayesian Fraction of Missing Information across chains.
@@ -91,13 +106,20 @@
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><strong>Diagnostic interpretation:</strong></p><ul><li><p><strong>Divergent transitions</strong>: Should be 0. Any divergent transitions indicate the
+    <p><strong>Diagnostic interpretation:</strong></p><ul><li><p><strong>Divergent transitions</strong>: Should ideally be 0. Any divergent transitions indicate the
 sampler had numerical issues and results may be unreliable.</p></li>
-<li><p><strong>Max treedepth</strong>: Should be 0 or very low. High values suggest the sampler
-is working hard and may benefit from increased <code>adapt_delta</code>.</p></li>
+<li><p><strong>Max treedepth</strong>: Should ideally be 0 or very low. High values suggest the sampler
+is working hard and may benefit from reparameterization. Increasing max
+treedepth is also an option but it is generally discouraged since it
+increases model fitting times without addressing the underlying issue.
+High max treedepth does not necessarily indicate convergence issues.</p></li>
 <li><p><strong>E-BFMI</strong>: Should be &gt; 0.2. Values &lt; 0.2 suggest poor adaptation, often
 requiring longer warmup or model reparameterization.</p></li>
-</ul></div>
+</ul><p>However, the sensitivity to problematic diagnostics depends on the analysis
+mode set via <code><a href="https://rdrr.io/pkg/embr/man/set_analysis_mode.html" class="external-link">embr::set_analysis_mode()</a></code>. The <code>'paper'</code> mode is the only
+mode that requires divergent transitions to be 0% – all other modes accept
+some level of tolerance.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="https://generics.r-lib.org/reference/glance.html" class="external-link">embr::glance()</a></code>, <code><a href="diagnose.html">diagnose()</a></code></p></div>

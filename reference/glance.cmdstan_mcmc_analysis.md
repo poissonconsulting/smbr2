@@ -6,7 +6,11 @@ Provides a one-row summary of key diagnostics for MCMC analysis results.
 
 ``` r
 # S3 method for class 'cmdstan_mcmc_analysis'
-glance(x, ...)
+glance(
+  x,
+  ...,
+  max_perc_divergent = getOption("mb.prop_divergent", 0.002) * 100
+)
 ```
 
 ## Arguments
@@ -18,6 +22,12 @@ glance(x, ...)
 - ...:
 
   Additional arguments (unused).
+
+- max_perc_divergent:
+
+  A percentage indicating the maximum number of divergent transitions
+  allowed for determining if the model converged. Generally set via
+  [`embr::set_analysis_mode()`](https://rdrr.io/pkg/embr/man/set_analysis_mode.html).
 
 ## Value
 
@@ -45,17 +55,21 @@ A tibble with one row containing:
 
 - converged:
 
-  Logical indicating convergence (TRUE if max R-hat \< rhat threshold)
+  Logical indicating convergence. `TRUE` if: `max(rhat)` is less than or
+  equal to its threshold, `min(ESS)` is greater than or equal to its
+  threshold, and `perc_divergent` is less than or euqal to its
+  threshold. Thresholds are determined by the analysis mode set by
+  [`embr::set_analysis_mode()`](https://rdrr.io/pkg/embr/man/set_analysis_mode.html).
 
-- num_divergent:
+- perc_divergent:
 
-  Number of divergent transitions across all chains. **Problem
-  indicators**: Any value \> 0 indicates sampling issues
+  Percentage of divergent transitions across all chains. **Problem
+  indicators**: Any value \> 0% indicates sampling issues
 
-- max_treedepth:
+- perc_max_treedepth:
 
-  Number of transitions that hit maximum tree depth. **Problem
-  indicators**: Values \> 0 may indicate inefficient sampling
+  Percentage of transitions that hit maximum tree depth. **Problem
+  indicators**: Values \> 0% may indicate inefficient sampling
 
 - ebfmi:
 
@@ -66,15 +80,25 @@ A tibble with one row containing:
 
 **Diagnostic interpretation:**
 
-- **Divergent transitions**: Should be 0. Any divergent transitions
-  indicate the sampler had numerical issues and results may be
-  unreliable.
+- **Divergent transitions**: Should ideally be 0. Any divergent
+  transitions indicate the sampler had numerical issues and results may
+  be unreliable.
 
-- **Max treedepth**: Should be 0 or very low. High values suggest the
-  sampler is working hard and may benefit from increased `adapt_delta`.
+- **Max treedepth**: Should ideally be 0 or very low. High values
+  suggest the sampler is working hard and may benefit from
+  reparameterization. Increasing max treedepth is also an option but it
+  is generally discouraged since it increases model fitting times
+  without addressing the underlying issue. High max treedepth does not
+  necessarily indicate convergence issues.
 
 - **E-BFMI**: Should be \> 0.2. Values \< 0.2 suggest poor adaptation,
   often requiring longer warmup or model reparameterization.
+
+However, the sensitivity to problematic diagnostics depends on the
+analysis mode set via
+[`embr::set_analysis_mode()`](https://rdrr.io/pkg/embr/man/set_analysis_mode.html).
+The `'paper'` mode is the only mode that requires divergent transitions
+to be 0% – all other modes accept some level of tolerance.
 
 ## See also
 

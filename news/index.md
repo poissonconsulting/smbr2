@@ -1,5 +1,10 @@
 # Changelog
 
+## smbr2 0.0.0.9001 {2026-08-21}
+
+- Model convergence now depends on effective sample size (ESS) and
+  percent of divergent transitions besides \hat R.
+
 ## smbr2 0.0.0.9000
 
 - New option `mb.show_exceptions` to suppress cmdstanr’s “Chain N
