@@ -1,4 +1,5 @@
 test_that("as.mcmcr works with a single monitored parameter", {
+  skip_if_not_installed("posterior")
   draws <- posterior::as_draws_array(
     array(
       seq_len(20) / 10,
@@ -15,6 +16,7 @@ test_that("as.mcmcr works with a single monitored parameter", {
 })
 
 test_that("as.mcmcr works with multiple monitored parameters", {
+  skip_if_not_installed("posterior")
   draws <- posterior::as_draws_array(
     array(
       rnorm(40),
