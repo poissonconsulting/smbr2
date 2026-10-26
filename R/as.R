@@ -17,10 +17,14 @@ as_mcmc_list <- function(x) {
   n_iteration <- dim(x)[1]
   class(x) <- 'array'
   mcmc_list <- lapply(seq_len(n_chain), function(chain) {
-    x <- x[, chain, ]
-    dimnames(x) <- list(
-      iteration = dimnames(x)$iteration,
-      variable = dimnames(x)$variable
+    x <- x[, chain, , drop = FALSE]
+    x <- array(
+      x,
+      dim = dim(x)[c(1, 3)],
+      dimnames = list(
+        iteration = dimnames(x)$iteration,
+        variable = dimnames(x)$variable
+      )
     )
     attr(x, 'mcpar') <- c(1, n_iteration, 1)
     class(x) <- 'mcmc'
